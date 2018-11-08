@@ -1,0 +1,40 @@
+#header{
+  #logo{
+    padding-top: 0;
+    padding-left: 0;
+    width: 100%;
+    margin-left: 0;
+    margin-top: 16px;
+    max-width: 90px;
+    height: auto;
+    @include media($menu-medium) {
+      max-width: 125px;
+      margin-top: 23px;
+    }
+    @include media($large-screen) {
+      margin-top: 30px;
+      max-width: 292px;
+    }
+  }
+
+  #header-region {
+    background: #47473D;
+  }
+
+  // Main menu adjustments
+  #block-menu-block-1.menu-accordion {
+    overflow: scroll;
+    height: 300px;
+    @include media($medium-screen) {
+      overflow: hidden;
+      height: auto;
+    }
+  }
+}
+
+
+#block-search-form{
+  input[type="submit"]{
+    text-transform:none;
+  }
+}

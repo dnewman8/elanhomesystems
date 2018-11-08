@@ -1,0 +1,23 @@
+.node-cb-testimonial {
+  text-align: center;
+  padding: 3em 5%;
+  @include media($medium-screen) {
+    padding: 6em 10%;
+    margin-top: 6em;
+  }
+
+  .field-name-body {
+    h2 {
+      margin-bottom: 0.5em;
+    }
+
+    p {
+      color: $medium-gray;
+    }
+  }
+
+  .testimonial-name {
+    font-weight: 700;
+    font-size: em(22);
+  }
+}

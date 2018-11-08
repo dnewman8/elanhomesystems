@@ -1,0 +1,363 @@
+<?php
+/**
+ * @file
+ * Module file.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function modal_contact_menu() {
+  $items['admin/appearance/contactform'] = array(
+    'title' => 'Contact Form',
+    'description' => 'Configure the Contact Form.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('modal_contact_system_settings'),
+    'access arguments' => array('administer modal contact'),
+    'file' => 'include/modal_contact.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  $items['contactus'] = array(
+    'title' => 'Contact',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('modal_contact_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+* Contact Form
+*/
+function modal_contact_form(){
+  
+  $variables = _modal_contact_variable_get();
+  	
+  $form['intro'] = array(
+    '#markup' => $variables['pretext'],
+  );
+  $form['contact_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Fullname'),
+    '#required' => TRUE,
+  );
+  $form['contact_email'] = array(
+    '#type' => 'textfield',
+    '#title' => t('E-mail address'),
+    '#required' => TRUE,
+  );
+  $form['contact_content'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Message'),
+    '#required' => TRUE,
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+	'#ajax' => array(
+		'callback' => 'modal_contact_form_submit',
+		'wrapper' => 'modal-contact-form',
+		'method' => 'replace',
+		'effect' => 'fade',
+	), 
+  );
+
+  return $form;
+}
+
+/**
+ * Form submission logic for the contact form.
+ */
+function modal_contact_form_submit($form, &$form_state) {
+  if(modal_contact_mail_send($form_state['values'])){
+  	//$msg['status']   = 'success';
+	return t('Your message has been sent!');
+  }
+  else {
+  	//$msg['status']   = 'error';
+	return $form;
+  }
+  
+  header("Content-Type: application/json");
+  echo json_encode( $msg );
+  exit;
+  
+}
+
+/**
+ * Implements hook_permission().
+ */
+function modal_contact_permission() {
+  $permissions['administer modal contact'] = array(
+    'title' => t('Configure the Contact Form.'),
+  );
+
+  return $permissions;
+}
+
+/**
+* check if domain is live
+**/
+function cf_domain_exists($email, $record = 'MX'){
+	list($user, $domain) = explode('@', $email);
+	return checkdnsrr($domain, $record);
+}
+
+function modal_contact_mail_send ($form_values) {
+
+	$variables = _modal_contact_variable_get();
+	$module = 'modal_contact';
+	$key = 'contact';
+	$to = $variables['to'];
+	$from = $form_values['contact_name'] .'<'.$form_values['contact_email'].'>';
+
+	$params = $form_values;
+	$language = language_default();
+	$send = TRUE;
+
+	$result = drupal_mail($module, $key, $to, $language, $params, $from, $send);
+	if ($result['result'] == TRUE) {
+		return true;
+	}
+	else {
+		return false;
+	}	
+}
+
+/**
+ * Implements hook_mail().
+ *
+ */
+function modal_contact_mail ($key, &$message, $params){
+	global $base_url;
+
+	$variables = _modal_contact_variable_get();
+	$sitename = variable_get('site_name');
+	$siteurl = $base_url;
+	$subject = $variables['subject'];
+	$body = $variables['body'];
+
+	$tags = array("[name]", "[email]", "[message]", "[sitename]", "[siteurl]");
+	$vals = array($params['contact_name'], $params['contact_email'], $params['contact_content'], $sitename, $siteurl);
+	
+	$subject = str_replace($tags, $vals, $subject);
+	$body = str_replace($tags, $vals, $body);
+	
+  switch ($key) {
+    case 'contact':
+      $message['subject'] = $subject;
+      $message['body'][] = $body;
+      break;
+  }
+}
+
+/**
+* send contact message
+*/
+function cf_dosend_mailer($from, $name, $message, $copyme = 'no'){
+	global $base_url;
+	$variables = _modal_contact_variable_get();
+
+	$to = $variables['to'];
+	$sitename = variable_get('site_name');
+	$siteurl = $base_url;
+	$subject = $variables['subject'];
+	$body = $variables['body'];
+
+	$tags = array("[name]", "[email]", "[message]", "[sitename]", "[siteurl]");
+	$vals = array($name, $from, $message, $sitename, $siteurl);	
+	$subject = str_replace($tags, $vals, $subject);
+	$body = str_replace($tags, $vals, $body);
+
+	//params is the array passed to hook_mail function
+	$params = array(
+		'subject' => $subject,
+		'body' => $body,
+	);
+	
+	$header = "From: $name <$from>\r\n";
+	
+	require (dirname( __FILE__ ).'/include/Mailer/PHPMailerAutoload.php');
+	$mail = new PHPMailer;
+
+	$mail->IsMail();
+	if($variables['smtp'] == 'on'){
+		$encrypt = $variables['secure'] == 'none' ? '' : $variables['secure'];		
+		$mail->isSMTP();								// Set mailer to use SMTP
+		$mail->Host = $variables['host'];				// Specify main and backup SMTP servers
+		$mail->SMTPSecure = $encrypt;					// Enable TLS encryption, `ssl` also accepted
+		$mail->Port = $variables['port'];				// TCP port to connect to
+
+		if($variables['auth'] == "true"){
+			$mail->SMTPAuth = TRUE;						// Enable SMTP authentication
+			$mail->Username = $variables['user'];		// SMTP username
+			$mail->Password = $variables['secret'];		// SMTP password
+		}		
+	}
+	
+	$mail->isHTML(false);
+
+	$mail->From = $to;
+	$mail->FromName = $name;
+	$mail->addAddress($to, $sitename);
+	$mail->AddReplyTo($from, $name);
+
+	if($copyme == 'yes'){
+		$mail->addAddress($from, $name);
+	}
+
+	$mail->Subject = $subject;
+	$mail->Body = $body;
+	
+	//@mail($to, $subject, $body, $header);	 
+	//$sending = drupal_mail('modal_contact', 'contact', $to, language_default(), $params, $from);
+	
+	//if($sending['send']){
+	if($mail->send()){
+		cf_thankyou_msg($name, $from, $message);
+		return true;
+	}
+
+	return false;
+}
+
+function cf_thankyou_msg($name, $from, $message){
+	global $base_url;
+	$variables = _modal_contact_variable_get();
+
+	$to = $variables['to'];
+	$sitename = variable_get('site_name');
+	$siteurl = $base_url;
+
+	$subthank = $variables['subthank'];
+	$thankyou = $variables['thankyou'];
+
+	$tags = array("[name]", "[email]", "[message]", "[sitename]", "[siteurl]");
+	$vals = array($name, $from, $message, $sitename, $siteurl);	
+	$subject = str_replace($tags, $vals, $subthank);
+	$body = str_replace($tags, $vals, $thankyou);
+
+	$mail = new PHPMailer;
+	$mail->IsMail();
+	if($variables['smtp'] == 'on'){
+		$encrypt = $variables['secure'] == 'none' ? '' : $variables['secure'];		
+		$mail->isSMTP();								// Set mailer to use SMTP
+		$mail->Host = $variables['host'];				// Specify main and backup SMTP servers
+		$mail->SMTPSecure = $encrypt;					// Enable TLS encryption, `ssl` also accepted
+		$mail->Port = $variables['port'];				// TCP port to connect to
+
+		if($variables['auth'] == "true"){
+			$mail->SMTPAuth = TRUE;						// Enable SMTP authentication
+			$mail->Username = $variables['user'];		// SMTP username
+			$mail->Password = $variables['secret'];		// SMTP password
+		}		
+	}
+	
+	$mail->isHTML(false);
+
+	$mail->From = $to;
+	$mail->FromName = $sitename;
+	$mail->addAddress($from, $name);
+
+	$mail->Subject = $subject;
+	$mail->Body = $body;
+	$mail->send();
+	
+	return true;
+}
+
+/**
+ * Implements hook_mail_alter().
+ */
+function modal_contact_mail_alter(&$message) {
+}
+
+/**
+ * Form submission logic for the modal contact.
+ */
+function modal_modal_contact_submit($form, &$form_state) {
+	modal_contact_mail_send($form_state['values']);
+}
+
+/**
+ * Implements hook_theme().
+ */
+function modal_contact_theme($existing, $type, $theme, $path) {
+
+global $base_url;
+$my_path = drupal_get_path('module', 'modal_contact');
+
+  $variables = _modal_contact_variable_get();
+  $image = image_get_info($variables['image']);
+
+  $registry['modal_contact'] = array(
+    'variables' => array(
+      'enabled' => $variables['enabled'],
+      'title' => $variables['title'],
+      'pretext' => $variables['pretext'],
+      'theme' => $variables['theme'],
+      'align' => $variables['align'],
+      'top' => $variables['top'],
+      'image' => $variables['image'],
+      'alt' => $variables['alt'],
+      'deny' => $variables['deny'],
+      'allow' => $variables['allow'],
+      'email' => $variables['to'],
+
+      // Computed from image.
+      'height' => $image['height'],
+      'width' => $image['width'],
+    ),
+    'template' => 'modal_contact',
+  );
+
+  return $registry;
+}
+
+/**
+ * Implements hook_preprocess_modal_contact().
+ */
+function modal_contact_preprocess_modal_contact(&$variables) {
+
+  // Allow Drupal to apply base_path and locale prefix outside of the
+  // Prevent breakage in subdirectory and multi-language sites.
+  $variables['image'] = base_path() . $variables['image'];
+
+  // Deny and allow rules.
+  if (drupal_match_path(current_path(), $variables['deny'])) {
+    $variables['enabled'] = FALSE;
+  }
+  if (drupal_match_path(current_path(), $variables['allow'])) {
+    $variables['enabled'] = TRUE;
+  }
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function modal_contact_page_build(&$page) {
+
+  $page['page_bottom']['modal_contact'] = array(
+    '#type' => 'markup',
+    '#markup' => theme('modal_contact'),
+    '#attached' => array(
+      'css' => array(drupal_get_path('module', 'modal_contact') . '/assets/css/modal_contact.css'),
+    ),
+  );
+}
+
+/**
+ * Variable get.
+ */
+function _modal_contact_variable_get($key = NULL) {
+  $variables = variable_get('modal_contact', array());
+
+  if (!empty($key)) {
+    return isset($variables[$key]) ? $variables[$key] : NULL;
+  }
+
+  return $variables;
+}

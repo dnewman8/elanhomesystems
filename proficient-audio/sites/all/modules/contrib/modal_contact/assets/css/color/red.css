@@ -1,0 +1,12 @@
+#form_modal {background: white;}
+#form_modal .errormsg{ background:#c0392b; color:white;}#form_modal .errormsg a{color:white;}
+#form_modal .successmsg{ background:#093; color:white;}
+.form_modal-inner {background:#e74c3c;}
+#form_modal .remodal {border:1px solid #c0392b !important;}
+#form_modal .bootstrap-wrapper .btn-info {border-color:#9b271b !important;background-color:#c0392b !important;}
+#form_modal .bootstrap-wrapper .btn-info:hover {background-color:#9b271b !important}
+#form_modal .bootstrap-wrapper .form-control { border-color:#9b271b; box-shadow: 1px 1px 7px rgba(0,0,0,0); }
+#form_modal .bootstrap-wrapper .form-control:focus { box-shadow: 1px 1px 7px #9b271b; }
+.form-label-lg{color: #4E5154;}
+.btn-color-form_modal { border-color: #22313F; background-color:#22313F !important;}
+.text-form_modal { color:#ffffff !important;}

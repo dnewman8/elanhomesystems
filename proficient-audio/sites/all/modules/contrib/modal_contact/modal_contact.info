@@ -1,0 +1,15 @@
+name = Modal Contact
+description = Add contact form as modal popup for drupal website.
+configure = admin/appearance/contactform
+
+package = User interface
+core = 7.x
+
+files[] = modal_contact.test
+
+; Information added by drupal.org packaging script on 2015-01-08
+version = "1.0.3"
+core = "7.x"
+project = "modal_contact"
+datestamp = "1420705815 "
+

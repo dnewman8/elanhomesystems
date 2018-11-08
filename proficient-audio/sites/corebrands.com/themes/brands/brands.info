@@ -1,0 +1,27 @@
+; Drupal's .info files allow themers to easily specify some of the static
+; properties of your theme. Properties such as its name, stylesheets,
+; javascripts, and block regions.
+;
+; Drupal 7 stores a cache of the data in this .info files. If you modify any
+; lines in this file, you MUST refresh Drupal 7's cache by simply visiting the
+; Appearance page at admin/appearance.
+
+
+
+name = Brands
+description = Sub-theme of CoreBrands
+core = 7.x
+base theme = corebrands
+
+stylesheets[all][] = css/style.css
+scripts[] = js/brands.js
+
+; Regions
+regions[header] = Header
+regions[highlighted] = Highlighted
+regions[help] = Help
+regions[content] = Content
+regions[sidebar_first] = First Sidebar
+regions[sidebar_second] = Second Sidebar
+regions[footer_top] = Footer Top
+regions[footer] = Footer

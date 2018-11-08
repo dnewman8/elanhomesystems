@@ -1,0 +1,250 @@
+<?php
+
+/**
+ * @file
+ * Test protected node behavior with paragraphs private files.
+ */
+
+/**
+ * Configure protected_node to use per node password and use private file field.
+ */
+class ProtectedNodeParagraphs extends ProtectedNodeBaseTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Protected node paragraphs private file',
+      'description' => "This tests the behavior of protected node with paragraphs private file field",
+      'group' => 'Protected Node',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp('paragraphs');
+
+    // Log in an Admin.
+    $this->drupalLogin($this->adminUser);
+    // Submit the configuration form.
+    $protected_node_settings = array(
+      'protected_node_use_global_password' => PROTECTED_NODE_PER_NODE_PASSWORD,
+    );
+    $this->drupalPost('admin/config/content/protected_node', $protected_node_settings, t('Save configuration'));
+
+    // Create a paragraph bundle.
+    $this->paragraphs_bundle_name = 'test_protected_node';
+    $paragraph_bundle_settings = array(
+      'name' => 'test protected node',
+      'bundle' => $this->paragraphs_bundle_name,
+    );
+    $this->drupalPost('admin/structure/paragraphs/add', $paragraph_bundle_settings, t('Save Paragraph bundle'));
+
+    // Create a paragraphs field to use for the tests.
+    $this->paragraphs_field_name = 'field_test_paragraphs';
+    $this->paragraphs_field = array(
+      'field_name' => $this->paragraphs_field_name,
+      'type' => 'paragraphs',
+      // Cardinality of 1 ensure there is only one "Add new paragraph" button
+      // for nested paragraphs.
+      'cardinality' => 1,
+    );
+    $this->paragraphs_field = field_create_field($this->paragraphs_field);
+
+    // Create a paragraphs field instance on basic page.
+    $this->paragraphs_field_instance = array(
+      'field_name' => $this->paragraphs_field_name,
+      'entity_type' => 'node',
+      'bundle' => 'page',
+      'label' => $this->randomName() . '_label',
+      'description' => $this->randomName() . '_description',
+      'weight' => mt_rand(0, 127),
+      'settings' => array(),
+      'widget' => array(
+        'type' => 'paragraphs_embed',
+        'label' => 'Test',
+        'settings' => array(),
+      ),
+    );
+    $this->paragraphs_field_instance = field_create_instance($this->paragraphs_field_instance);
+
+    // Create a paragraphs field instance on paragraphs to have nested
+    // paragraphs.
+    $this->paragraphs_field_instance = array(
+      'field_name' => $this->paragraphs_field_name,
+      'entity_type' => 'paragraphs_item',
+      'bundle' => $this->paragraphs_bundle_name,
+      'label' => $this->randomName() . '_label',
+      'description' => $this->randomName() . '_description',
+      'weight' => mt_rand(0, 127),
+      'settings' => array(),
+      'widget' => array(
+        'type' => 'paragraphs_embed',
+        'label' => 'Test',
+        'settings' => array(),
+      ),
+    );
+    $this->paragraphs_field_instance = field_create_instance($this->paragraphs_field_instance);
+
+    // Private file system already set by simpletest.
+    // Set private file field for basic page.
+    $filefieldtestcase = new FileFieldTestCase();
+    $this->private_file_field_name = 'private_file';
+
+    // Create a private file field.
+    $this->private_file_field = array(
+      'field_name' => $this->private_file_field_name,
+      'type' => 'file',
+      'settings' => array(
+        'uri_scheme' => 'private',
+      ),
+      'cardinality' => 1,
+    );
+    field_create_field($this->private_file_field);
+    $filefieldtestcase->attachFileField($this->private_file_field_name, 'paragraphs_item', $this->paragraphs_bundle_name);
+  }
+
+  /**
+   * Test function.
+   *
+   * Test that a file on a node protected with per node protection can be
+   * downloaded with the right password.
+   */
+  public function testAllowedView() {
+    // Log in as Admin.
+    $this->drupalLogin($this->adminUser);
+    // Generate random password.
+    $password = $this->randomName(10);
+    // Create a new page node.
+    $creation_info = $this->createProtectedNodeWithParagraphs($password);
+    // Once the node created logout the user.
+    $this->drupalLogout();
+
+    // An authenticated user sees the node.
+    $this->drupalLogin($this->normalAccessAllowedUser);
+    $form = array('password' => $password);
+    $this->drupalPost('node/' . $creation_info['node']->nid, $form, t('OK'));
+
+    // Ensure the file can be downloaded.
+    $this->drupalGet(file_create_url($creation_info['paragraphs_item']->{$this->private_file_field_name}[LANGUAGE_NONE][0]['uri']));
+    $this->assertResponse(200, 'Confirmed that the generated URL is correct by downloading the shipped file.');
+  }
+
+  /**
+   * Test function.
+   *
+   * Test that a file on a node protected with per node protection can't be
+   * downloaded with the wrong password.
+   */
+  public function testAllowedViewWrongPassword() {
+    // Log in as Admin.
+    $this->drupalLogin($this->adminUser);
+    // Generate random password.
+    $password = $this->randomName(10);
+    // Create a new page node.
+    $creation_info = $this->createProtectedNodeWithParagraphs($password);
+    // Once the node created logout the user.
+    $this->drupalLogout();
+
+    // An authenticated user sees the node.
+    $this->drupalLogin($this->normalAccessAllowedUser);
+    $another_password = $this->randomName(12);
+    $form = array('password' => $another_password);
+    $this->drupalPost('node/' . $creation_info['node']->nid, $form, t('OK'));
+
+    // Ensure the file cannot be downloaded.
+    $file_uri = $creation_info['paragraphs_item']->{$this->private_file_field_name}[LANGUAGE_NONE][0]['uri'];
+    $file_url = file_create_url($file_uri);
+    $file_text = file_get_contents(drupal_realpath($file_uri));
+    $this->drupalGet($file_url);
+    $this->assertNoText($file_text, 'Confirmed that access is denied for the file without access to the node.', $this->group);
+  }
+
+  /**
+   * Test function.
+   *
+   * Test that a file on a node protected with per node protection can't be
+   * downloaded by an authenticated but not allowed user.
+   */
+  public function testAuthenticatedNonAllowedView() {
+    // Log in as Admin.
+    $this->drupalLogin($this->adminUser);
+    // Generate random password.
+    $password = $this->randomName(10);
+    // Create a new page node.
+    $creation_info = $this->createProtectedNodeWithParagraphs($password);
+    // Once the node created logout the user.
+    $this->drupalLogout();
+
+    // Ensure the file cannot be downloaded.
+    $this->drupalLogin($this->normalNonAccessAllowedUser);
+    $this->drupalGet(file_create_url($creation_info['paragraphs_item']->{$this->private_file_field_name}[LANGUAGE_NONE][0]['uri']));
+    $this->assertResponse(403, 'Confirmed that access is denied for the file without access to the node.');
+  }
+
+  /**
+   * Helper method to create a protected node.
+   *
+   * Please make sure the user has the permission to create the node before
+   * calling the method.
+   *
+   * @param string $password
+   *   A password.
+   *
+   * @return object
+   *   A node object.
+   */
+  public function createProtectedNode($password) {
+    // Add a new page node that is protected.
+    $node_title = $this->randomName(8);
+
+    $this->drupalGet('node/add/page');
+
+    // Add a new paragraph before saving node.
+    $this->drupalPost(NULL, array(), t('Add new Paragraph'));
+    // Add a new nested paragraph before saving node.
+    $this->drupalPost(NULL, array(), t('Add new Paragraph'));
+
+    $node_data = array(
+      'title' => $node_title,
+      'body[und][0][value]' => $this->randomName(32),
+      'files[' . $this->paragraphs_field_name . '_und_0_' . $this->paragraphs_field_name . '_und_0_' . $this->private_file_field_name . '_und_0]' => drupal_realpath(current($this->drupalGetTestFiles('text'))->uri),
+      'protected_node_is_protected' => TRUE,
+      'protected_node_passwd[pass1]' => $password,
+      'protected_node_passwd[pass2]' => $password,
+    );
+    $this->drupalPost(NULL, $node_data, t('Save'));
+    return $this->drupalGetNodeByTitle($node_title);
+  }
+
+  /**
+   * Helper for creating a new protected node with a nested paragraphs item.
+   *
+   * Please make sure the user has the permission to create the node before
+   * calling the method.
+   *
+   * @param string $password
+   *   A password.
+   *
+   * @return array
+   *   An array containing the node and the paragraphs_item object.
+   */
+  protected function createProtectedNodeWithParagraphs($password) {
+    $node = $this->createProtectedNode($password);
+    // Retrieve the child paragraphs item.
+    $parent_paragraphs_item_id = $node->{$this->paragraphs_field_name}[LANGUAGE_NONE][0]['value'];
+    $paragraphs_items = entity_load('paragraphs_item', array($parent_paragraphs_item_id));
+    $paragraphs_item = array_shift($paragraphs_items);
+    $child_paragraphs_item_id = $paragraphs_item->{$this->paragraphs_field_name}[LANGUAGE_NONE][0]['value'];
+    $paragraphs_items = entity_load('paragraphs_item', array($child_paragraphs_item_id));
+    $paragraphs_item = array_shift($paragraphs_items);
+    return array(
+      'node' => $node,
+      'paragraphs_item' => $paragraphs_item,
+    );
+  }
+
+}

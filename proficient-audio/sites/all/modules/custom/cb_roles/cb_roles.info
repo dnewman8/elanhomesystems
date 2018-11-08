@@ -1,0 +1,10 @@
+name = CB: Roles
+description = Defines default user roles: editor, moderator and administrator.
+core = 7.x
+package = Project6
+version = 7.x-1.0
+dependencies[] = features
+features[features_api][] = api:2
+features[user_role][] = administrator
+features[user_role][] = editor
+features[user_role][] = moderator

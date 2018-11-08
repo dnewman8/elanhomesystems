@@ -1,0 +1,55 @@
+name        = Core Brands
+description = Custom base theme for multi-sites.
+screenshot  = img/screenshot.png
+core        = 7.x
+
+; Regions
+regions[header] = Header
+regions[page_top] = Page top
+regions[page_bottom] = Page bottom
+regions[highlighted] = Highlighted
+regions[help] = Help
+regions[content] = Content
+regions[sidebar_first] = First Sidebar
+regions[sidebar_second] = Second Sidebar
+regions[footer_top] = Footer Top
+regions[footer] = Footer
+
+; Features
+features[] = logo
+features[] = name
+features[] = favicon
+features[] = main_menu
+features[] = secondary_menu
+
+
+; Default settings
+settings[toggle_logo] = 1
+settings[toggle_main_menu] = 1
+settings[toggle_secondary_menu] = 1
+settings[traina_wireframe_mode] = 1
+settings[traina_rebuild_registry] = 0
+settings[traina_breadcrumb] = no
+settings[traina_breadcrumb_separator] = »
+
+; CSS
+stylesheets[all][] = bower_components/normalize.css/normalize.css
+stylesheets[all][] = fonts/core-brands/styles.css
+stylesheets[all][] = bower_components/spinkit/css/spinkit.css
+stylesheets[all][] = bower_components/please-wait/build/please-wait.css
+stylesheets[all][] = bower_components/slick-carousel/slick/slick.css
+stylesheets[all][] = bower_components/slick-carousel/slick/slick-theme.css
+stylesheets[all][] = bower_components/colorbox/example3/colorbox.css
+stylesheets[all][] = css/style.css
+
+; Javascript
+scripts[] = bower_components/please-wait/build/please-wait.min.js
+scripts[] = bower_components/slick-carousel/slick/slick.js
+scripts[] = bower_components/colorbox/jquery.colorbox-min.js
+;scripts[] = bower_components/scrollto/jquery-scrollto.js
+scripts[] = bower_components/scrollto/jquery.scrollTo.min.js
+scripts[] = bower_components/jquery.easing/js/jquery.easing.min.js
+scripts[] = bower_components/parallax/parallax.js
+scripts[] = bower_components/scrollto/scrolling.js
+scripts[] = bower_components/matchHeight/jquery.matchHeight-min.js
+scripts[] = js/corebrands.js

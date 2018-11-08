@@ -1,0 +1,11 @@
+.container {
+  @include outer-container();
+  padding: 0 1em;
+}
+
+@import "region.header";
+@import "region.highlighted";
+@import "region.content";
+@import "region.sidebar.first";
+@import "region.sidebar.second";
+@import "region.footer";

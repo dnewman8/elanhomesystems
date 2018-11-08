@@ -1,0 +1,17 @@
+name = Proficient Audio
+description = Sub-theme of CoreBrands
+core = 7.x
+base theme = corebrands
+
+stylesheets[all][] = css/style.css
+scripts[] = js/proficient.js
+
+; Regions
+regions[header] = Header
+regions[highlighted] = Highlighted
+regions[help] = Help
+regions[content] = Content
+regions[sidebar_first] = First Sidebar
+regions[sidebar_second] = Second Sidebar
+regions[footer_top] = Footer Top
+regions[footer] = Footer

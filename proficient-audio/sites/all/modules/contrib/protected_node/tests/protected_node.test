@@ -1,0 +1,65 @@
+<?php
+
+/**
+ * @file
+ * Base test class.
+ *
+ * Will define all common needed methods and properties that are needed for all
+ * the tests.
+ */
+
+/**
+ * This class adds the requirements for all protected_node test classes.
+ */
+class ProtectedNodeBaseTestCase extends DrupalWebTestCase {
+
+  /**
+   * Prepare users for protected node's tests.
+   */
+  public function setUp() {
+    // See DrupalWebTestCase::setUp().
+    // Install modules needed for this test. This could have been passed in as
+    // either a single array argument or a variable number of string arguments.
+    $modules = func_get_args();
+    if (isset($modules[0]) && is_array($modules[0])) {
+      $modules = $modules[0];
+    }
+    elseif (isset($modules[0]) && !is_array($modules[0])) {
+      $modules = array($modules[0]);
+    }
+    else {
+      $modules = array();
+    }
+    $modules = array_merge(array('protected_node'), $modules);
+
+    parent::setUp($modules);
+
+    // Set the group.
+    $this->group = 'Protected node';
+
+    // User with all needed permissions.
+    $this->adminUser = $this->drupalCreateUser(array(
+      'access protected node password form',
+      'edit any protected node password',
+      'edit protected content',
+      'administer site configuration',
+      'administer nodes',
+      'bypass node access',
+      'administer content types',
+      'administer paragraphs bundles',
+    ));
+
+    // User with access protected node permission.
+    $this->normalAccessAllowedUser = $this->drupalCreateUser(array('access protected node password form'));
+
+    // User with access protected node permission.
+    $this->bypassViewAccessAllowedUser = $this->drupalCreateUser(array(
+      'access protected node password form',
+      'view protected content',
+    ));
+
+    // User with view published content permission.
+    $this->normalNonAccessAllowedUser = $this->drupalCreateUser(array('access content'));
+  }
+
+}

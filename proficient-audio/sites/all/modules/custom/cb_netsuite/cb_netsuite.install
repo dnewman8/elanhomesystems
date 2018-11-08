@@ -1,0 +1,572 @@
+<?php
+/**
+ * @file Installation hooks
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function cb_netsuite_uninstall() {
+
+    // Delete variables with sensitive data.
+    variable_del('ns_brand');
+    variable_del('ns_accountNumber');
+    variable_del('ns_host');
+    variable_del('ns_url');
+    variable_del('ns_consumerKey');
+    variable_del('ns_consumerSecret');
+    variable_del('ns_tokenId');
+    variable_del('ns_tokenSecret');
+
+}
+
+/**
+ * Implements hook_schema().
+ */
+function cb_netsuite_schema() {
+    $schema['ns_products'] = array(
+        'description' => 'Products imported through Netsuite API',
+        'fields' => array(
+            'product_id' => array(
+                'description' => 'Netsuite internal id.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE
+            ),
+            'title' => array(
+                'description' => 'Product title.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'model_number' => array(
+                'description' => 'Product model number.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'item_id' => array(
+                'description' => 'Product item id.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'category' => array(
+                'description' => 'Netsuite catergory id.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'default' => 0
+            ),
+            'sub_category' => array(
+                'description' => 'Netsuite sub catergory id.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'default' => 0
+            ),
+            'sub_type' => array(
+                'description' => 'Netsuite sub type id.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'default' => 0
+            ),
+            'web_family' => array(
+                'description' => 'Netsuite web family id.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'default' => 0
+            ),
+            'introduction' => array(
+                'description' => 'Product introduction.',
+                'type' => 'text'
+            ),
+            'description' => array(
+                'description' => 'Product description.',
+                'type' => 'text'
+            ),
+            'features' => array(
+                'description' => 'Product features.',
+                'type' => 'text'
+            ),
+            'specifications' => array(
+                'description' => 'Product specifications.',
+                'type' => 'text'
+            ),
+            'warranty' => array(
+                'description' => 'Product warranty.',
+                'type' => 'text',
+            ),
+            'weight' => array(
+                'description' => 'Product weight for listings.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'default' => 0
+            ),
+            'created_at' => array(
+                'description' => 'Timestamp for the creation date.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE,
+                'default' => 0
+            )
+        ),
+        'indexes' => array(
+            'category' => array('category'),
+            'sub_category' => array('sub_category'),
+            'sub_type' => array('sub_type')
+        ),
+        'primary key' => array('product_id'),
+    );
+
+    $schema['ns_prod_img'] = array(
+        'description' => 'Pivot table for a product and its associated images',
+        'fields' => array(
+            'product_id' => array(
+                'description' => 'Netsuite internal id.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE
+            ),
+            'image_id' => array(
+                'description' => 'Netsuite internal id of the image.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE
+            ),
+        ),
+        'primary key' => array('product_id', 'image_id'),
+    );
+
+    $schema['ns_prod_rel'] = array(
+        'description' => 'Pivot table for a product and its related products',
+        'fields' => array(
+            'product_id' => array(
+                'description' => 'Netsuite internal id.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE
+            ),
+            'related_id' => array(
+                'description' => 'Netsuite internal id of the related product.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE
+            ),
+        ),
+        'primary key' => array('product_id', 'related_id'),
+    );
+
+    $schema['ns_product_images'] = array(
+        'description' => 'Images imported through Netsuite API.',
+        'fields' => array(
+            'image_id' => array(
+                'description' => 'Netsuite internal id.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE
+            ),
+            'name' => array(
+                'description' => 'The file name of the image.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'url' => array(
+                'description' => 'The image url.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'created_at' => array(
+                'description' => 'Timestamp for the creation date.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE,
+                'default' => 0
+            ),
+        ),
+        'primary key' => array('image_id'),
+    );
+
+    $schema['ns_prod_res'] = array(
+        'description' => 'Pivot table for a product and its resources',
+        'fields' => array(
+            'product_id' => array(
+                'description' => 'Netsuite internal id.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE
+            ),
+            'resource_id' => array(
+                'description' => 'Netsuite internal id of the resource.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE
+            ),
+        ),
+        'primary key' => array('product_id', 'resource_id'),
+    );
+
+    $schema['ns_product_resources'] = array(
+        'description' => 'Resources imported through Netsuite API.',
+        'fields' => array(
+            'resource_id' => array(
+                'description' => 'Netsuite internal id.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE
+            ),
+            'title' => array(
+                'description' => 'The title of the resource.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'filename' => array(
+                'description' => 'The file name of the resource.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'type' => array(
+                'description' => 'The type name.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'typeid' => array(
+                'description' => 'The id of the type.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'url' => array(
+                'description' => 'The resource url.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'created_at' => array(
+                'description' => 'Timestamp for the creation date.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE,
+                'default' => 0
+            ),
+        ),
+        'primary key' => array('resource_id'),
+    );
+
+
+    $schema['ns_product_categories'] = array(
+        'description' => 'Product categories imported through Netsuite API.',
+        'fields' => array(
+            'category_id' => array(
+                'description' => 'Netsuite internal id.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE
+            ),
+            'type' => array(
+                'description' => 'Type of category.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'name' => array(
+                'description' => 'Name of the category.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'created_at' => array(
+                'description' => 'Timestamp for the creation date.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE,
+                'default' => 0
+            )
+        ),
+        'primary key' => array('category_id', 'type'),
+    );
+
+    $schema['ns_dealers'] = array(
+        'description' => 'Dealers imported through Netsuite API',
+        'fields' => array(
+            'dealer_id' => array(
+                'description' => 'Netsuite internal id.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE
+            ),
+            'company' => array(
+                'description' => 'Company name.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'email' => array(
+                'description' => 'Company email.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'address1' => array(
+                'description' => 'Company address 1.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'address2' => array(
+                'description' => 'Company address 2.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'city' => array(
+                'description' => 'Company city.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'country_code' => array(
+                'description' => 'Company country code.',
+                'type' => 'varchar',
+                'length' => 4,
+                'default' => ''
+            ),
+            'country_name' => array(
+                'description' => 'Company country name.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'phone' => array(
+                'description' => 'Company phone.',
+                'type' => 'varchar',
+                'length' => 32,
+                'default' => ''
+            ),
+            'state' => array(
+                'description' => 'Company state.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'zipcode' => array(
+                'description' => 'Company postal code.',
+                'type' => 'varchar',
+                'length' => 32,
+                'default' => ''
+            ),
+            'website' => array(
+                'description' => 'Company website.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'type' => array(
+                'description' => 'Type of dealer.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'default' => 0
+            ),
+            'elite' => array(
+                'description' => 'Elite program.',
+                'type' => 'int',
+                'not null' => true,
+                'unsigned' => TRUE,
+                'default' => 0
+            ),
+            'created_at' => array(
+                'description' => 'Timestamp for the creation date.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE,
+                'default' => 0
+            )
+        ),
+        'indexes' => array(
+            'email' => array('email'),
+            'company' => array('company'),
+            'zipcode' => array('zipcode')
+        ),
+        'primary key' => array('dealer_id'),
+    );
+
+    return $schema;
+}
+
+/**
+ * Add weight to products table.
+ */
+function cb_netsuite_update_7100() {
+    $table = 'ns_products';
+
+    $fields = [
+        'weight' => [
+            'description' => 'Product weight for listings.',
+            'type' => 'int',
+            'unsigned' => TRUE,
+            'default' => 0
+        ]
+    ];
+
+    foreach ($fields as $key => $field)  {
+        if (!db_field_exists($table, $key)) {
+            db_add_field($table, $key, $field);
+        }
+    }
+}
+
+/**
+ * Add item id to products table.
+ */
+function cb_netsuite_update_7101() {
+    $table = 'ns_products';
+
+    $fields = [
+        'item_id' => [
+            'description' => 'Product item id.',
+            'type' => 'varchar',
+            'length' => 255,
+            'default' => ''
+        ],
+    ];
+
+    foreach ($fields as $key => $field)  {
+        if (!db_field_exists($table, $key)) {
+            db_add_field($table, $key, $field);
+        }
+    }
+}
+
+/**
+ * Add product resources table.
+ */
+function cb_netsuite_update_7102() {
+    $schema['ns_prod_res'] = array(
+        'description' => 'Pivot table for a product and its resources',
+        'fields' => array(
+            'product_id' => array(
+                'description' => 'Netsuite internal id.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE
+            ),
+            'resource_id' => array(
+                'description' => 'Netsuite internal id of the resource.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE
+            ),
+        ),
+        'primary key' => array('product_id', 'resource_id'),
+    );
+
+    $schema['ns_product_resources'] = array(
+        'description' => 'Resources imported through Netsuite API.',
+        'fields' => array(
+            'resource_id' => array(
+                'description' => 'Netsuite internal id.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE
+            ),
+            'title' => array(
+                'description' => 'The title of the resource.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'filename' => array(
+                'description' => 'The file name of the resource.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'type' => array(
+                'description' => 'The type name.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'typeid' => array(
+                'description' => 'The id of the type.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'url' => array(
+                'description' => 'The resource url.',
+                'type' => 'varchar',
+                'length' => 255,
+                'default' => ''
+            ),
+            'created_at' => array(
+                'description' => 'Timestamp for the creation date.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE,
+                'default' => 0
+            ),
+        ),
+        'primary key' => array('resource_id'),
+    );
+
+    foreach ($schema as $name => $structure) {
+        if (!db_table_exists($name)) {
+            db_create_table($name, $structure);
+        }
+    }
+
+    // Remove resources field from products table.
+    db_drop_field('ns_products', 'resources');
+
+    return 'Added product resources table';
+}
+
+/**
+ * Add elite program to dealers table.
+ */
+function cb_netsuite_update_7103() {
+    $table = 'ns_dealers';
+
+    $fields = [
+        'elite' => array(
+            'description' => 'Elite program.',
+            'type' => 'int',
+            'not null' => true,
+            'unsigned' => true,
+            'default' => 0
+        ),
+    ];
+
+    foreach ($fields as $key => $field)  {
+        if (!db_field_exists($table, $key)) {
+            db_add_field($table, $key, $field);
+        }
+    }
+}
+
+/**
+ * Add elite sort order to dealers table.
+ */
+function cb_netsuite_update_7104() {
+    $table = 'ns_dealers';
+
+    $fields = [
+        'elite_sort' => array(
+            'description' => 'Elite sort.',
+            'type' => 'int',
+            'not null' => true,
+            'unsigned' => true,
+            'default' => 0
+        ),
+    ];
+
+    foreach ($fields as $key => $field)  {
+        if (!db_field_exists($table, $key)) {
+            db_add_field($table, $key, $field);
+        }
+    }
+}

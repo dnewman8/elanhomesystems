@@ -1,0 +1,169 @@
+<?php
+
+require __DIR__ . '/vendor/autoload.php';
+
+/**
+ * Implements hook_permission().
+ */
+function cb_netsuite_permission() {
+    return [
+        'administer netsuite' => [
+            'title' => t('Administer Netsuite'),
+            'description' => t('Control Netsuite settings and functions.'),
+        ]
+    ];
+}
+
+/**
+ * Implements hook_menu().
+ */
+function cb_netsuite_menu() {
+    $items = array();
+
+    $items['admin/config/services/netsuite'] = array(
+        'title' => 'Netsuite',
+        'description' => 'Configure Netsuite settings',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('cb_netsuite_settings_form'),
+        'access arguments' => array('administer netsuite'),
+        'file' => 'cb_netsuite.admin.inc',
+    );
+
+    return $items;
+}
+
+/**
+ * Implements hook_cron.
+ */
+function cb_netsuite_cron() {
+    // Run this every 6 hours and if credentials are set.
+    if (defined('NETSUITE_HOST') && defined('NETSUITE_PATH')) {
+        // Set the import interval to 6 hours;
+        $import_intervall =  60 * 60 * 6;
+
+        if ((time() - variable_get('netsuite_last_run ', 0)) > $import_intervall ) {
+            variable_set('netsuite_last_run ', time());
+
+            $start_time = time();
+            $cache_list = [
+                'categories' => 'ProductCategory',
+                'images' => 'ProductImage',
+                'resources' => 'ProductResource',
+                'products' => 'Product',
+                'dealers' => 'Dealer'
+            ];
+
+            watchdog('cb_netsuite', t('Importing from Netsuite...'));
+            foreach ($cache_list as $id => $name) {
+                $controller = cb_netsuite_controller($name);
+                $controller->import();
+            }
+
+            watchdog('cb_netsuite', t('Migrating cached items into Drupal...'));
+            $import_list = [
+                'ProductCategory' => t('Categories'),
+                'ProductSubCategory' => t('Sub Categories'),
+                'ProductSubType' => t('Sub Types'),
+                'Product' => t('Products')
+            ];
+
+            foreach ($import_list as $class => $name) {
+                $migration = Migration::getInstance($class);
+                // $migration->resetStatus();
+                $migration->prepareUpdate();
+                $migration->processImport();
+
+                watchdog('cb_netsuite', t('Migrated :name.', [':name' => $name]));
+            }
+
+            watchdog('cb_netsuite', t('Netsuite import finish in :time seconds.', [':time' => time() - $start_time]));
+        }
+    }
+}
+
+
+/**
+ * Create new Netsuite connetion controller.
+ *
+ * @param $type Either Product or Dealer at this point.
+ * @return object or false, if unsuccessful.
+ */
+function cb_netsuite_controller($type) {
+
+    $params = [
+        'brand' => NETSUITE_BRAND,
+        'accountNumber' => NETSUITE_ACCOUNT,
+        'host' => NETSUITE_HOST,
+        'path' => NETSUITE_PATH,
+        'consumerKey' => NETSUITE_CONSUMER_KEY,
+        'consumerSecret' => NETSUITE_CONSUMER_SECRET,
+        'tokenId' => NETSUITE_TOKEN_ID,
+        'tokenSecret' => NETSUITE_TOKEN_SECRET
+    ];
+
+    if (class_exists($type)) {
+        return new $type($params);
+    }
+    else {
+        watchdog('cb_netsuite', 'Invalid controller class :name.', [':name' => $type], WATCHDOG_ERROR);
+    }
+
+    return false;
+}
+
+
+/**
+ * Get the brands definition array.
+ */
+function cb_netsuite_getBrands() {
+    return [
+        3 => t('ELAN'),
+        4 => t('Furman'),
+        5 => t('Niles Audio'),
+        6 => t('Panamax'),
+        7 => t('Proficient Audio'),
+        8 => t('SpeakerCraft'),
+        9 => t('Sunfire'),
+        10 => t('Xantech'),
+        26 => t('Gefen')
+    ];
+}
+
+function cb_netsuite_get_model($product_nid) {
+    $output = [];
+
+    if ($product = node_load($product_nid) ) {
+        $brands = cb_netsuite_getBrands();
+
+        $model_number = !empty($product->field_product_model) ? $product->field_product_model[LANGUAGE_NONE][0]['safe_value'] : '';
+
+        if (!empty($model_number)) {
+            $output[] = $brands[NETSUITE_BRAND] . ' ' . $model_number;
+
+            // Add the item id only for certain brands.
+            if (in_array(NETSUITE_BRAND, [5, 8]) && !empty($product->field_product_item_id)) {
+                $item_id = $product->field_product_item_id[LANGUAGE_NONE][0]['value'];
+
+                if (trim($model_number) != trim($item_id)) {
+                    $output[] = $item_id;
+                }
+            }
+        }
+    }
+
+    return implode(' | ', $output);
+}
+
+/**
+ * Helper function to generate a random string.
+ */
+function cb_netsuite_random_string() {
+    $length = 20;
+    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $charactersLength = strlen($characters);
+    $randomString = '';
+    for ($i = 0; $i < $length; $i++) {
+        $randomString .= $characters[rand(0, $charactersLength - 1)];
+    }
+    return $randomString;
+}

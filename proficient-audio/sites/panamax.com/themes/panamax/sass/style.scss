@@ -1,0 +1,23 @@
+// Override the base variables.
+@import "overrides";
+
+// Import the base theme styles.
+@import "../../../../all/themes/corebrands/sass/style";
+
+
+.gradient {
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#42c3f1+0,0072bc+100 */
+  background: #0072bc; /* Old browsers */
+  background: -moz-radial-gradient(center, ellipse cover,  #42c3f1 0%, #0072bc 100%); /* FF3.6-15 */
+  background: -webkit-radial-gradient(center, ellipse cover,  #42c3f1 0%, #0072bc 100%); /* Chrome10-25,Safari5.1-6 */
+  background: radial-gradient(ellipse at center,  #42c3f1 0%, #0072bc 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#42c3f1', endColorstr='#0072bc',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+}
+
+
+// Site specific styles.
+@import "blocks";
+@import "header";
+@import "front";
+@import "entity.rotato";
+@import "footer";

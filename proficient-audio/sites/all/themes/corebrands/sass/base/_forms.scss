@@ -1,0 +1,107 @@
+fieldset {
+  background-color: $secondary-background-color;
+  border: $base-border;
+  margin: 0 0 $small-spacing;
+  padding: $base-spacing;
+}
+
+input,
+label,
+select {
+  display: block;
+  font-family: $base-font-family;
+  font-size: $base-font-size;
+}
+
+label {
+  font-weight: 400;
+  margin-bottom: 0.2em;
+  font-size: 24px;
+
+  &.required::after {
+    content: "*";
+  }
+
+  abbr {
+    display: none;
+  }
+}
+
+textarea,
+#{$all-text-inputs},
+select {
+  background-color: $base-background-color;
+  border: $base-border;
+  border-radius: 0;
+  box-sizing: border-box;
+  font-family: $base-font-family;
+  font-size: $base-font-size;
+  margin-bottom: $small-spacing;
+  padding: $base-spacing / 3;
+  transition: border-color $base-duration $base-timing;
+  width: 100%;
+  max-width: 100%;
+  height: 50px;
+  line-height: 50px;
+
+  &:hover {
+    border-color: shade($base-border-color, 20%);
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:disabled {
+    background-color: shade($base-background-color, 5%);
+    cursor: not-allowed;
+
+    &:hover {
+      border: $base-border;
+    }
+  }
+}
+
+textarea {
+  resize: vertical;
+  height: auto;
+  line-height: 1.2;
+  padding: 0.5em;
+}
+
+input[type="search"] {
+  appearance: none;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  display: inline;
+  margin-right: $small-spacing / 2;
+
+  + label {
+    display: inline-block;
+  }
+}
+
+input[type="file"] {
+  margin-bottom: $small-spacing;
+  width: 100%;
+}
+
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: white url(/sites/all/themes/corebrands/img/icon-caret-down.png) no-repeat 96% center;
+  padding: 0 1em;
+  min-widht: 200px;
+}
+
+.grippie {
+  display: none !important;
+}
+
+#admin-menu-search input {
+  height: auto;
+  line-height: 1;
+}

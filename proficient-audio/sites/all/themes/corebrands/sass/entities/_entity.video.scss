@@ -1,0 +1,47 @@
+#block-views-videos-block {
+  margin: 6em 0 2em 0;
+
+  .view-content {
+    @include clearfix();
+  }
+
+  .views-row {
+    @include span-columns(4);
+    text-align: center;
+  }
+
+  .icon {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 6em;
+    color: $lightest-gray;
+    line-height: 1;
+    margin-top: -42px;
+  }
+
+  .image-wrapper {
+    position: relative;
+    display: block;
+
+    &:hover {
+      .icon {
+        color: $primary-accent-color;
+      }
+    }
+  }
+}
+
+.node-cb-video {
+  h2 {
+    font-size: em(30);
+    color: $medium-gray;
+    margin: 1em 0;
+  }
+
+  .field-name-body {
+    font-size: em(18);
+  }
+}

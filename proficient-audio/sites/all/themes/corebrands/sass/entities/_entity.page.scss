@@ -1,0 +1,37 @@
+.node-page {
+  header {
+    position: relative;
+  }
+
+  .field-name-field-page-introduction {
+    font-size: em(28);
+    color: $medium-gray;
+    text-align: center;
+    padding: 1em 0;
+    @include media($medium-screen) {
+      font-size: em(28);
+    }
+    h2{
+      font-size: 2em;
+      margin: 0;
+      @include media($medium-screen) {
+        font-size: 3em;
+        margin: 0 0 0.75em;
+      }
+    }
+    .field-items{
+      padding: 0 10%;
+    }
+  }
+
+  .field-name-body {
+    margin-bottom: 6em;
+  }
+
+  &.has-results {
+    .field-name-field-page-hero,
+    .field-name-field-page-introduction {
+      display: none;
+    }
+  }
+}

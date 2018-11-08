@@ -1,0 +1,152 @@
+//Main menu overrides
+
+#header {
+  #block-menu-block-1:not(.menu-accordion){
+    .content{
+      width:100%;
+      margin:0;
+      ul{
+        @include clearfix;
+      }
+      li{
+        width:50%;
+        float:left;
+        a{
+          padding: 2.5em 0;
+          display:block;
+          text-align:center;
+          font-size: em(36);
+          line-height: 1;
+          &:hover,&.active{
+            background:$c-red;
+            color:#fff;
+          }
+        }
+      }
+    }
+  }
+}
+
+//Homepage News 3 column listing
+
+#block-views-news-block-2{
+  background:$light-gray-bg;
+  margin-bottom:0 !important;
+  .view-content{
+    @include clearfix;
+    padding: 2.5em;
+  }
+  h2{
+    padding-top: 0.75em;
+    margin-bottom: 0;
+  }
+  .views-row{
+    margin-bottom:1.5em;
+    border-bottom:1px solid $medium-gray;
+    @include media($medium-screen-up){
+      width:33.33333%;
+      float:left;
+      border-left:1px solid #fff;
+      border-right:1px solid $medium-gray;
+      min-height: 10em;
+      border-bottom:0;
+    }
+    font-size: em(18);
+    padding: 1em 2em;
+
+    &:first-child{
+      border-left:0
+    }
+    &:last-child{
+      border-right:0;
+    }
+    .views-field-field-news-date{
+      margin-bottom: 0.2em;
+    }
+    h3{
+      font-size: em(24);
+    }
+    a{
+      color:$dark-gray;
+      &:after{
+        display:inline-block;
+        content: '';
+        width: 0;
+        height: 0;
+        margin-left:8px;
+        border-style: solid;
+        border-width: 6px 0 6px 6px;
+        border-color: transparent transparent transparent $dark-gray;
+        line-height: 0px;
+        border-style: inset;
+        _border-color: #000000 #000000 #000000 $dark-gray;
+        _filter: progid:DXImageTransform.Microsoft.Chroma(color='#000000');
+        -webkit-transform:rotate(360deg);
+      }
+    }
+  }
+}
+
+//Our brands page, 3 columns
+
+#block-views-brands-block{
+  margin:2em 0;
+  @include media($medium-screen-up) {
+    margin:7em 0;
+  }
+  .view-content{
+    @include clearfix;
+  }
+  .views-row {
+    margin-bottom: 1.5em;
+    padding: 3em 1.3em;
+    text-align: center;
+    border-bottom: 1px solid $lighter-gray;
+    @include media($medium-screen-up) {
+      margin-bottom:0;
+      width: 33.33333%;
+      float: left;
+      border-bottom: 1px solid $lighter-gray;
+      border-right: 1px solid $lighter-gray;
+      position: relative;
+      &:nth-child(3n) {
+        border-right: none;
+      }
+      &.views-row-7,&.views-row-8,&.views-row-last{
+        border-bottom: none;
+      }
+    }
+    &:last-child{
+      border-bottom:none;
+    }
+
+  }
+
+  .views-field-field-rotato-brand-logo{
+    margin-bottom:2em;
+  }
+  .views-field-field-rotato-brand-desc {
+    width: 80%;
+    margin: auto;
+    a {
+      font-size: em(24);
+      width: 50%;
+      display: inline-block;
+      padding: 0 1em;
+      text-align: center;
+      &:first-child {
+        border-right: 1px solid $lighter-gray;
+      }
+    }
+  }
+}
+
+.footer-logo-left {
+  padding-top: 7px !important;
+}
+
+#block-block-7 {
+  h2 {
+    margin: 0 0 0.25em;
+  }
+}

@@ -1,0 +1,255 @@
+<?php
+
+/**
+ * @file
+ * Test protected node behavior with field collection private files.
+ */
+
+/**
+ * Configure protected_node to use per node password and use private file field.
+ */
+class ProtectedNodeFieldCollection extends ProtectedNodeBaseTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Protected node field collection private file',
+      'description' => "This tests the behavior of protected node with field collection private file field",
+      'group' => 'Protected Node',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp('field_collection');
+
+    // Log in an Admin.
+    $this->drupalLogin($this->adminUser);
+    // Submit the configuration form.
+    $protected_node_settings = array(
+      'protected_node_use_global_password' => PROTECTED_NODE_PER_NODE_PASSWORD,
+    );
+    $this->drupalPost('admin/config/content/protected_node', $protected_node_settings, t('Save configuration'));
+
+    // Create a field_collection field to use for the tests.
+    $this->field_collection_field_name = 'field_test_collection';
+    $this->field_collection_field = array(
+      'field_name' => $this->field_collection_field_name,
+      'type' => 'field_collection',
+      'cardinality' => -1,
+    );
+    $this->field_collection_field = field_create_field($this->field_collection_field);
+
+    // Create a field_collection field instance.
+    $this->field_collection_field_instance = array(
+      'field_name' => $this->field_collection_field_name,
+      'entity_type' => 'node',
+      'bundle' => 'page',
+      'label' => $this->randomName() . '_label',
+      'description' => $this->randomName() . '_description',
+      'weight' => mt_rand(0, 127),
+      'settings' => array(),
+      'widget' => array(
+        'type' => 'field_collection_embed',
+        'label' => 'Test',
+        'settings' => array(),
+      ),
+    );
+    $this->field_collection_field_instance = field_create_instance($this->field_collection_field_instance);
+
+    // Private file system already set by simpletest.
+    // Set private file field for basic page.
+    $filefieldtestcase = new FileFieldTestCase();
+    $this->private_file_field_name = 'private_file';
+
+    // Create a private file field.
+    $this->private_file_field = array(
+      'field_name' => $this->private_file_field_name,
+      'type' => 'file',
+      'settings' => array(
+        'uri_scheme' => 'private',
+      ),
+      'cardinality' => 1,
+    );
+    field_create_field($this->private_file_field);
+    $filefieldtestcase->attachFileField($this->private_file_field_name, 'field_collection_item', $this->field_collection_field_name);
+  }
+
+  /**
+   * Test function.
+   *
+   * Test that a file on a node protected with per node protection can be
+   * downloaded with the right password.
+   */
+  public function testAllowedView() {
+    // Log in as Admin.
+    $this->drupalLogin($this->adminUser);
+    // Generate random password.
+    $password = $this->randomName(10);
+    // Create a new page node.
+    $creation_info = $this->createProtectedNodeWithFieldCollection($password);
+    // Once the node created logout the user.
+    $this->drupalLogout();
+
+    // An authenticated user sees the node.
+    $this->drupalLogin($this->normalAccessAllowedUser);
+    $form = array('password' => $password);
+    $this->drupalPost('node/' . $creation_info['node']->nid, $form, t('OK'));
+
+    // Ensure the file can be downloaded.
+    $this->drupalGet(file_create_url($creation_info['field_collection_item']->{$this->private_file_field_name}[LANGUAGE_NONE][0]['uri']));
+    $this->assertResponse(200, 'Confirmed that the generated URL is correct by downloading the shipped file.');
+  }
+
+  /**
+   * Test function.
+   *
+   * Test that a file on a node protected with per node protection can't be
+   * downloaded with the wrong password.
+   */
+  public function testAllowedViewWrongPassword() {
+    // Log in as Admin.
+    $this->drupalLogin($this->adminUser);
+    // Generate random password.
+    $password = $this->randomName(10);
+    // Create a new page node.
+    $creation_info = $this->createProtectedNodeWithFieldCollection($password);
+    // Once the node created logout the user.
+    $this->drupalLogout();
+
+    // An authenticated user sees the node.
+    $this->drupalLogin($this->normalAccessAllowedUser);
+    $another_password = $this->randomName(12);
+    $form = array('password' => $another_password);
+    $this->drupalPost('node/' . $creation_info['node']->nid, $form, t('OK'));
+
+    // Ensure the file cannot be downloaded.
+    $file_uri = $creation_info['field_collection_item']->{$this->private_file_field_name}[LANGUAGE_NONE][0]['uri'];
+    $file_url = file_create_url($file_uri);
+    $file_text = file_get_contents(drupal_realpath($file_uri));
+    $this->drupalGet($file_url);
+    $this->assertNoText($file_text, 'Confirmed that access is denied for the file without access to the node.', $this->group);
+  }
+
+  /**
+   * Test function.
+   *
+   * Test that a file on a node protected with per node protection can't be
+   * downloaded by an authenticated but not allowed user.
+   */
+  public function testAuthenticatedNonAllowedView() {
+    // Log in as Admin.
+    $this->drupalLogin($this->adminUser);
+    // Generate random password.
+    $password = $this->randomName(10);
+    // Create a new page node.
+    $creation_info = $this->createProtectedNodeWithFieldCollection($password);
+    // Once the node created logout the user.
+    $this->drupalLogout();
+
+    // Ensure the file cannot be downloaded.
+    $this->drupalLogin($this->normalNonAccessAllowedUser);
+    $this->drupalGet(file_create_url($creation_info['field_collection_item']->{$this->private_file_field_name}[LANGUAGE_NONE][0]['uri']));
+    $this->assertResponse(403, 'Confirmed that access is denied for the file without access to the node.');
+  }
+
+  /**
+   * Test function.
+   *
+   * Test that a file used on two protected nodes with per node protection can
+   * be downloaded if the user has access to one node.
+   *
+   * See function testPrivateFile() from file.test.
+   */
+  public function testAuthenticatedMultipleNodesAllowedView() {
+    // Log in as Admin.
+    $this->drupalLogin($this->adminUser);
+    // Generate two random passwords.
+    $password1 = $this->randomName(10);
+    $password2 = $this->randomName(15);
+    // Create two new page nodes.
+    $creation_info1 = $this->createProtectedNodeWithFieldCollection($password1);
+    $creation_info2 = $this->createProtectedNodeWithFieldCollection($password2);
+    // Once the node created logout the user.
+    $this->drupalLogout();
+
+    // Ensure the file cannot be downloaded.
+    $this->drupalLogin($this->normalNonAccessAllowedUser);
+    $this->drupalGet(file_create_url($creation_info1['field_collection_item']->{$this->private_file_field_name}[LANGUAGE_NONE][0]['uri']));
+    $this->assertResponse(403, 'Confirmed that access is denied for the file without access to the node.');
+
+    // An authenticated user sees the first node.
+    $this->drupalLogin($this->normalAccessAllowedUser);
+    $form = array('password' => $password1);
+    $this->drupalPost('node/' . $creation_info1['node']->nid, $form, t('OK'));
+
+    $text = $creation_info1['node']->body[LANGUAGE_NONE][0]['value'];
+    $this->assertText($text, "User with right permission can access a protected node with the right password", $this->group);
+
+    // An authenticated user can't see the second node.
+    $this->drupalGet('node/' . $creation_info2['node']->nid);
+    $text = 'Protected page -- Enter password';
+    $this->assertText($text, "User with right permission can't access a protected node without entering the password", $this->group);
+
+    // Ensure the file can be downloaded even if the user can't access the
+    // second node.
+    $this->drupalGet(file_create_url($creation_info2['field_collection_item']->{$this->private_file_field_name}[LANGUAGE_NONE][0]['uri']));
+    $this->assertResponse(200, 'Confirmed that the generated URL is correct by downloading the shipped file on the second node.');
+  }
+
+  /**
+   * Helper method to create a protected node.
+   *
+   * Please make sure the user has the permission to create the node before
+   * calling the method.
+   *
+   * @param string $password
+   *   A password.
+   *
+   * @return object
+   *   A node object.
+   */
+  public function createProtectedNode($password) {
+    // Add a new page node that is protected.
+    $node_title = $this->randomName(8);
+    $node_data = array(
+      'title' => $node_title,
+      'body[und][0][value]' => $this->randomName(32),
+      'files[' . $this->field_collection_field_name . '_und_0_' . $this->private_file_field_name . '_und_0]' => drupal_realpath(current($this->drupalGetTestFiles('text'))->uri),
+      'protected_node_is_protected' => TRUE,
+      'protected_node_passwd[pass1]' => $password,
+      'protected_node_passwd[pass2]' => $password,
+    );
+    $this->drupalPost('node/add/page', $node_data, t('Save'));
+    return $this->drupalGetNodeByTitle($node_title);
+  }
+
+  /**
+   * Helper for creating a new protected node with a field collection item.
+   *
+   * Please make sure the user has the permission to create the node before
+   * calling the method.
+   *
+   * @param string $password
+   *   A password.
+   *
+   * @return array
+   *   An array containing the node and the field_collection_item object.
+   */
+  protected function createProtectedNodeWithFieldCollection($password) {
+    $node = $this->createProtectedNode($password);
+    // Retrieve the field collection item.
+    $field_collection_item_id = $node->{$this->field_collection_field_name}[LANGUAGE_NONE][0]['value'];
+    $field_collection_items = entity_load('field_collection_item', array($field_collection_item_id));
+    $field_collection_item = array_shift($field_collection_items);
+    return array(
+      'node' => $node,
+      'field_collection_item' => $field_collection_item,
+    );
+  }
+
+}

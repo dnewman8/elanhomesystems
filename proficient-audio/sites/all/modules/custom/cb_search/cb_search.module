@@ -1,0 +1,16 @@
+<?php
+/**
+ * @file
+ * Code for the Search feature.
+ */
+
+include_once 'cb_search.features.inc';
+
+
+/**
+ * Implements hook_form_alter().
+ */
+function cb_search_form_search_api_page_search_form_node_index_alter(&$form, &$form_state) {
+    // Add the proper search icon.
+    $form['submit_1']['#value'] = "p";
+}

@@ -1,0 +1,338 @@
+<?php
+
+/**
+ * @file
+ * Test protected node behavior with private files.
+ */
+
+/**
+ * Configure protected_node to use per node password and use private file field.
+ */
+class ProtectedNodePrivateFile extends ProtectedNodeBaseTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Protected node private file',
+      'description' => "This tests the behavior of protected node with private file field",
+      'group' => 'Protected Node',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp('image');
+
+    // Log in an Admin.
+    $this->drupalLogin($this->adminUser);
+    // Submit the configuration form.
+    $protected_node_settings = array(
+      'protected_node_use_global_password' => PROTECTED_NODE_PER_NODE_PASSWORD,
+    );
+    $this->drupalPost('admin/config/content/protected_node', $protected_node_settings, t('Save configuration'));
+
+    // Private file system already set by simpletest.
+    // Set private file field for basic page.
+    $filefieldtestcase = new FileFieldTestCase();
+    $filefieldtestcase->createFileField('private_file', 'page', array(
+      'uri_scheme' => 'private',
+    ));
+    // Set private image field for basic page.
+    $this->createImageField('private_image', 'page', array(
+      'uri_scheme' => 'private',
+    ));
+
+    // Get files to upload.
+    $this->text_file = current($this->drupalGetTestFiles('text'));
+    $this->image_file = current($this->drupalGetTestFiles('image'));
+
+    // Add a new page node with the files so we can have the file ids.
+    $node_title = $this->randomName(8);
+    $node_data = array(
+      'title' => $node_title,
+      'files[private_file_und_0]' => drupal_realpath($this->text_file->uri),
+      'files[private_image_und_0]' => drupal_realpath($this->image_file->uri),
+    );
+    $this->drupalPost('node/add/page', $node_data, t('Save'));
+    $file_node = $this->drupalGetNodeByTitle($node_title);
+    $this->text_file = (object) $file_node->private_file[LANGUAGE_NONE][0];
+    $this->image_file = (object) $file_node->private_image[LANGUAGE_NONE][0];
+  }
+
+  /**
+   * Test function.
+   *
+   * Test that a file on a node protected with per node protection can be
+   * downloaded with the right password.
+   */
+  public function testAllowedView() {
+    // Log in as Admin.
+    $this->drupalLogin($this->adminUser);
+    // Generate random password.
+    $password = $this->randomName(10);
+    // Create a new page node.
+    $node = $this->createProtectedNode($password);
+    // Once the node created logout the user.
+    $this->drupalLogout();
+
+    // An authenticated user sees the node.
+    $this->drupalLogin($this->normalAccessAllowedUser);
+    $form = array('password' => $password);
+    $this->drupalPost('node/' . $node->nid, $form, t('OK'));
+
+    // Ensure the file can be downloaded.
+    $this->drupalGet(file_create_url($node->private_file[LANGUAGE_NONE][0]['uri']));
+    $this->assertResponse(200, 'Confirmed that the generated URL is correct by downloading the shipped file.');
+  }
+
+  /**
+   * Test function.
+   *
+   * Test that a file on a node protected with per node protection can't be
+   * downloaded with the wrong password.
+   */
+  public function testAllowedViewWrongPassword() {
+    // Log in as Admin.
+    $this->drupalLogin($this->adminUser);
+    // Generate random password.
+    $password = $this->randomName(10);
+    // Create a new page node.
+    $node = $this->createProtectedNode($password);
+    // Once the node created logout the user.
+    $this->drupalLogout();
+
+    // An authenticated user sees the node.
+    $this->drupalLogin($this->normalAccessAllowedUser);
+    $another_password = $this->randomName(12);
+    $form = array('password' => $another_password);
+    $this->drupalPost('node/' . $node->nid, $form, t('OK'));
+
+    // Ensure the file cannot be downloaded.
+    $file_uri = $node->private_file[LANGUAGE_NONE][0]['uri'];
+    $file_url = file_create_url($file_uri);
+    $file_text = file_get_contents(drupal_realpath($file_uri));
+    $this->drupalGet($file_url);
+    $this->assertNoText($file_text, 'Confirmed that access is denied for the file without access to the node.', $this->group);
+  }
+
+  /**
+   * Test function.
+   *
+   * Test that a file on a node protected with per node protection can't be
+   * downloaded by an authenticated but not allowed user.
+   */
+  public function testAuthenticatedNonAllowedView() {
+    // Log in as Admin.
+    $this->drupalLogin($this->adminUser);
+    // Generate random password.
+    $password = $this->randomName(10);
+    // Create a new page node.
+    $node = $this->createProtectedNode($password);
+    // Once the node created logout the user.
+    $this->drupalLogout();
+
+    // Ensure the file cannot be downloaded.
+    $this->drupalLogin($this->normalNonAccessAllowedUser);
+    $this->drupalGet(file_create_url($node->private_file[LANGUAGE_NONE][0]['uri']));
+    $this->assertResponse(403, 'Confirmed that access is denied for the file without access to the node.');
+  }
+
+  /**
+   * Test function.
+   *
+   * Test that a file used on two protected nodes with per node protection can
+   * be downloaded if the user has access to one node.
+   *
+   * See function testPrivateFile() from file.test.
+   */
+  public function testAuthenticatedMultipleNodesAllowedView() {
+    // Log in as Admin.
+    $this->drupalLogin($this->adminUser);
+    // Generate two random passwords.
+    $password1 = $this->randomName(10);
+    $password2 = $this->randomName(15);
+    // Create two new page nodes.
+    $node1 = $this->createProtectedNode($password1);
+    $node2 = $this->createProtectedNode($password2);
+    // Once the node created logout the user.
+    $this->drupalLogout();
+
+    // Ensure the file cannot be downloaded.
+    $this->drupalLogin($this->normalNonAccessAllowedUser);
+    $this->drupalGet(file_create_url($node1->private_file[LANGUAGE_NONE][0]['uri']));
+    $this->assertResponse(403, 'Confirmed that access is denied for the file without access to the node.');
+
+    // An authenticated user sees the first node.
+    $this->drupalLogin($this->normalAccessAllowedUser);
+    $form = array('password' => $password1);
+    $this->drupalPost('node/' . $node1->nid, $form, t('OK'));
+
+    $text = $node1->body[LANGUAGE_NONE][0]['value'];
+    $this->assertText($text, "User with right permission can access a protected node with the right password", $this->group);
+
+    // An authenticated user can't see the second node.
+    $this->drupalGet('node/' . $node2->nid);
+    $text = 'Protected page -- Enter password';
+    $this->assertText($text, "User with right permission can't access a protected node without entering the password", $this->group);
+
+    // Ensure the file can be downloaded even if the user can't access the
+    // second node.
+    $this->drupalGet(file_create_url($node2->private_file[LANGUAGE_NONE][0]['uri']));
+    $this->assertResponse(200, 'Confirmed that the generated URL is correct by downloading the shipped file on the second node.');
+  }
+
+  /**
+   * Test function.
+   *
+   * Test that an image uploaded with AJAX can be viewed before being saved.
+   */
+  public function testUpload() {
+    // Log in as Admin.
+    $this->drupalLogin($this->adminUser);
+    // Go to the page creation form.
+    $this->drupalGet('node/add/page');
+
+    $temp_image_file = current($this->drupalGetTestFiles('image'));
+
+    $this->drupalPostAJAX(
+      NULL,
+      array(
+        'files[private_image_und_0]' => drupal_realpath($temp_image_file->uri),
+      ),
+      array(
+        (string) 'private_image_und_0_upload_button' => (string) t('Upload'),
+      )
+    );
+
+    // Get the preview URL.
+    $image_url = NULL;
+    $image_preview = $this->xpath('//div[@class="image-preview"]/img');
+    /** @var SimpleXMLElement $html_node */
+    foreach ($image_preview as $html_node) {
+      $attributes = $html_node->attributes();
+      if (isset($attributes['src'])) {
+        $image_url = $attributes['src'];
+        break;
+      }
+    }
+
+    // Go to the preview image URL to check the access.
+    if (!is_null($image_url)) {
+      $this->drupalGet($image_url);
+      $this->assertResponse(200, 'Confirmed that the user has access to the image event if it is a private image as it is in temporary status.');
+    }
+    else {
+      $this->assertFalse($image_url, t('No image preview found.'), $this->group);
+    }
+  }
+
+  /**
+   * Test function.
+   *
+   * Test that a file on a node protected with per node protection can be
+   * downloaded if the user has the "View protected content (bypass password)"
+   * permission.
+   */
+  public function testBypassView() {
+    // Log in as Admin.
+    $this->drupalLogin($this->adminUser);
+    // Generate random password.
+    $password = $this->randomName(10);
+    // Create a new page node.
+    $node = $this->createProtectedNode($password);
+    // Once the node created logout the user.
+    $this->drupalLogout();
+
+    // A bypass password for view authenticated user sees the node.
+    $this->drupalLogin($this->bypassViewAccessAllowedUser);
+    $this->drupalGet('node/' . $node->nid);
+
+    $text = $node->body[LANGUAGE_NONE][0]['value'];
+    $this->assertText($text, "User with the bypass password for view permission can access a protected node without password.", $this->group);
+
+    // Ensure the file can be downloaded.
+    $this->drupalGet(file_create_url($node->private_file[LANGUAGE_NONE][0]['uri']));
+    $text = 'Protected page -- Enter password';
+    $this->assertNoText($text, "User with the bypass password for view permission can access a protected node without password.", $this->group);
+  }
+
+  /**
+   * Helper method to create a protected node.
+   *
+   * Please make sure the user has the permission to create the node before
+   * calling the method.
+   *
+   * @param string $password
+   *   A password.
+   *
+   * @return object
+   *   A node object.
+   */
+  public function createProtectedNode($password) {
+    // Add a new page node that is protected.
+    $node_title = $this->randomName(8);
+    $node_data = array(
+      'title' => $node_title,
+      'body[und][0][value]' => $this->randomName(32),
+      'private_file[und][0][fid]' => $this->text_file->fid,
+      'protected_node_is_protected' => TRUE,
+      'protected_node_passwd[pass1]' => $password,
+      'protected_node_passwd[pass2]' => $password,
+    );
+    $this->drupalPost('node/add/page', $node_data, t('Save'));
+
+    return $this->drupalGetNodeByTitle($node_title);
+  }
+
+  /**
+   * Create a new image field.
+   *
+   * Copy/pasted from image.test. Don't know why "new ImageFieldTestCase()" made
+   * fatal error.
+   *
+   * @param string $name
+   *   The name of the new field (all lowercase), exclude the "field_" prefix.
+   * @param string $type_name
+   *   The node type that this field will be added to.
+   * @param array $field_settings
+   *   A list of field settings that will be added to the defaults.
+   * @param array $instance_settings
+   *   A list of instance settings that will be added to the instance defaults.
+   * @param array $widget_settings
+   *   A list of widget settings that will be added to the widget defaults.
+   *
+   * @return array
+   *   The $instance array with the id property filled in.
+   */
+  public function createImageField($name, $type_name, array $field_settings = array(), array $instance_settings = array(), array $widget_settings = array()) {
+    $field = array(
+      'field_name' => $name,
+      'type' => 'image',
+      'settings' => array(),
+      'cardinality' => !empty($field_settings['cardinality']) ? $field_settings['cardinality'] : 1,
+    );
+    $field['settings'] = array_merge($field['settings'], $field_settings);
+    field_create_field($field);
+
+    $instance = array(
+      'field_name' => $field['field_name'],
+      'entity_type' => 'node',
+      'label' => $name,
+      'bundle' => $type_name,
+      'required' => !empty($instance_settings['required']),
+      'settings' => array(),
+      'widget' => array(
+        'type' => 'image_image',
+        'settings' => array(),
+      ),
+    );
+    $instance['settings'] = array_merge($instance['settings'], $instance_settings);
+    $instance['widget']['settings'] = array_merge($instance['widget']['settings'], $widget_settings);
+    return field_create_instance($instance);
+  }
+
+}

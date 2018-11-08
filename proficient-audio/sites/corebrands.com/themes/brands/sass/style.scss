@@ -1,0 +1,18 @@
+/**
+ * Theme styles.
+ */
+
+// Override the base variables.
+@import "overrides";
+
+// Import the base theme styles.
+@import "../../../../all/themes/corebrands/sass/style";
+
+// Site specific styles.
+@import "blocks";
+@import "overrides";
+@import "header";
+@import "page-overrides";
+@import "entity.rotato-brands";
+@import "entity.press";
+@import "footer";

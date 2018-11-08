@@ -1,0 +1,322 @@
+<?php
+/**
+ * @file
+ * Code for the Dealers feature.
+ */
+
+include_once 'cb_dealer.features.inc';
+
+
+/**
+ * Implements hook_permission().
+ */
+function cb_dealer_permission() {
+    return [
+        'administer corebrands' => [
+            'title' => t('Administer Corebrands'),
+            'description' => t('Allow to control various settings and functions specific to Corebrands.'),
+        ]
+    ];
+}
+
+/**
+ * Implements hook_menu().
+ */
+function cb_dealer_menu() {
+    $items['admin/reports/leads/export'] = array(
+        'title' => t('Export customer leads'),
+        'page callback' => 'cb_dealer_export_leads',
+        'access arguments' => array('administer corebrands'),
+    );
+
+    return $items;
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function cb_dealer_block_info() {
+    $blocks['cb_dealer_search'] = array(
+        'info' => t('CB: Dealer Search Form'),
+        'cache' => DRUPAL_NO_CACHE,
+    );
+
+    $blocks['cb_dealer_search_results'] = array(
+        'info' => t('CB: Dealer Search Results'),
+        'cache' => DRUPAL_NO_CACHE,
+    );
+
+    return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function cb_dealer_block_view($delta = '') {
+    $block = array();
+
+    switch ($delta) {
+        case 'cb_dealer_search':
+            $block['subject'] = t('Get Started');
+
+            module_load_include('inc', 'cb_dealer', 'cb_dealer.forms');
+            $block['content'] = drupal_get_form('cb_dealer_search_form');
+            break;
+
+        case 'cb_dealer_search_results':
+            $block['subject'] = t('');
+            $block['content'] = cb_dealer_search_results();
+            break;
+    }
+
+    return $block;
+}
+
+
+/**
+ * Callback for search results rendering.
+ */
+function cb_dealer_search_results() {
+    $output = '';
+    $rows = [];
+
+    // Get query parameters for filter.
+    $params = drupal_get_query_parameters();
+
+    $col_1_header = t('Dealer');
+    $col_2_header = t('Address');
+    $col_3_header = t('Phone / Email');
+    $col_4_header = t('Distance');
+
+    $header = array($col_1_header, $col_2_header, $col_3_header, $col_4_header);
+
+    if (!empty($params['zip_code'])) {
+        $output = '<h3>' . t('No dealers could be found') . '</h3>';
+        $dealers = cb_dealer_find_dealers(check_plain($params['zip_code']));
+
+        $dealer_types = [
+            1 => COREBRANDS_BRAND . ' ' . t('Elite'),
+            2 => t('Elite Dealer'),
+            3 => t('Elite Dealer, Flagship'),
+            4 => t('Premier Dealer'),
+            5 => t('Premier Dealer, Flagship'),
+            6 => t('Certified Dealer'),
+            7 => t('Certified Dealer, Flagship')
+        ];
+
+        foreach ($dealers as $dealer) {
+            $address_line1 = implode(', ', array_filter([$dealer->address1,$dealer->address2]));
+            $address_line2 = implode(', ', array_filter([$dealer->city, $dealer->state, $dealer->zipcode]));
+
+            $address = implode('<br>', array_filter([$address_line1, $address_line2]));
+
+            $title = '<h3>' . $dealer->company . '</h3>';
+
+            if (array_key_exists($dealer->elite, $dealer_types)) {
+                $title .= '<div class="dealer-elite">' . $dealer_types[$dealer->elite] . '</div>';
+            }
+
+            if (!empty($dealer->website)) {
+                $title = '<a href="' . $dealer->website . '" target="_blank">' . $title . '</a>';
+            }
+
+            $rows[] = array(
+                array('data' => $title, 'title' => $col_1_header),
+                array('data' => $address, 'title' => $col_2_header),
+                array('data' => '<a href="tel:' . $dealer->phone . '" class="phone">' . $dealer->phone . '</a>' . '<br><a href="mailto:' . $dealer->email . '" class="email">' . t('Email') . '</a>', 'title' => $col_3_header),
+                array('data' => $dealer->distance . ' miles', 'title' => $col_4_header),
+            );
+        }
+
+        if ($rows) {
+            $output = theme('table', array('header' => $header, 'rows' => $rows, 'sticky' => FALSE, 'attributes' => array('class' => array('responsive-table'))));
+        }
+    }
+
+    return $output;
+}
+
+/**
+ * Callback for CSV export.
+ */
+function cb_dealer_export_leads() {
+    $filename = 'cb_leads_' . date('d-m-Y') . '.csv';
+
+    $result = db_select('cb_dealer_leads', 'cdl')
+        ->fields('cdl')
+        ->execute();
+
+    $headers = [
+        'lead_id' => t('Lead_ID'),
+        'name' => t('Name'),
+        'email' => t('Email'),
+        'zip_code' => t('Zip_Code'),
+        'created_at' => t('Creation_Date')
+    ];
+    $rows = [];
+
+    while($lead = $result->fetchAssoc()) {
+        $lead['created_at'] = format_date($lead['created_at']);
+        $rows[] = $lead;
+    }
+
+    cb_dealer_create_csv($filename, $headers, $rows);
+}
+
+/**
+ * Creates csv file and send it to the browser to download.
+ * @param   string $filename Filename of the resulting file.
+ * @param   array  $headers Column headers
+ * @param   array  $rows    Rows of the csv
+ * @return csv file
+ */
+function cb_dealer_create_csv($filename, $headers, $rows) {
+    // Prepare the CSV.
+    $fh = fopen('php://output', 'w');
+
+    // Write the headers.
+    fputcsv($fh, $headers);
+
+    foreach ($rows as $row) {
+        fputcsv($fh, $row);
+    }
+
+    // Set the headers for file handling.
+    drupal_add_http_header('Content-Type', 'text/csv; utf-8');
+    drupal_add_http_header('Content-Disposition', 'attachment; filename = ' . $filename);
+
+    fclose($fh);
+}
+
+/**
+ * Find dealers for the given postal code.
+ *
+ * @param $postal_code Postal code.
+ * @return array Contains the 20 closest dealers.
+ */
+function cb_dealer_find_dealers($postal_code) {
+    $dealers = [];
+
+    // Get location for this postal code.
+    if ($customer = cb_dealer_get_lat_long($postal_code)) {
+        // Get all dealers
+        $dealers_all = db_select('ns_dealers', 'nd')
+            ->fields('nd')
+            ->execute();
+
+
+        // Calculate distance for each dealer and compare to the source.
+        while ($dealer = $dealers_all->fetchObject()) {
+            $zip_tokens = explode('-',trim($dealer->zipcode));
+
+            if (count($zip_tokens) && $ld = cb_dealer_get_lat_long($zip_tokens[0])) {
+                $distance = cb_dealer_calc_distance($customer->latitude, $customer->longitude, $ld->latitude, $ld->longitude);
+
+                $dealer->distance = round($distance);
+
+                if ($dealer->distance < 100) {
+                    $dealers[] = $dealer;
+                }
+            }
+        }
+
+        // Sort array by distance.
+        uasort($dealers, 'cb_dealer_sort_distance');
+
+        // Take the first 10.
+        $dealers = array_slice($dealers, 0 , 10);
+
+        // Sort on elite types.
+        uasort($dealers, 'cb_dealer_sort_elite');
+    }
+
+    return $dealers;
+}
+
+/**
+ * Helper function to compare dealer distances.
+ */
+function cb_dealer_sort_distance($a, $b) {
+
+    if (intval($a->distance) === intval($b->distance)) {
+        return 0;
+    }
+
+    return (intval($a->distance) < intval($b->distance)) ? -1 : 1;
+}
+
+/**
+ * Helper function to compare dealer elite types.
+ */
+function cb_dealer_sort_elite($a, $b) {
+
+    if (intval($a->elite_sort) === intval($b->elite_sort)) {
+        return 0;
+    }
+
+    return (intval($a->elite_sort) > intval($b->elite_sort)) ? -1 : 1;
+}
+
+/**
+ * Implements hook_node_view_alter().
+ */
+function cb_dealer_node_view_alter(&$build) {
+
+    if ($build['#node']->type == 'page') {
+        if (drupal_get_path_alias(current_path()) === 'find-dealer') {
+            module_load_include('inc', 'cb_dealer', 'cb_dealer.forms');
+            $build['header_form'] = drupal_get_form('cb_dealer_search_form');
+        }
+    }
+}
+
+/**
+ * Get the lat/long for a zip code
+ * @param $postal_code Postal code
+ * @return array Contains record from postal code database, if found.
+ */
+function cb_dealer_get_lat_long($postal_code) {
+    // The postal code in the database don't have a leading zero.
+    $postal_code = ltrim($postal_code, '0');
+
+    return db_select('cb_dealer_postal_codes', 'pc')
+        ->fields('pc')
+        ->condition('postal_code', $postal_code, '=')
+        ->execute()
+        ->fetchObject();
+}
+
+
+/**
+ * Calculate the distance between to locations (latitute, longitude)
+ *
+ * Copied from https://www.geodatasource.com/developers/php
+ *
+ * @param $lat1
+ * @param $lon1
+ * @param $lat2
+ * @param $lon2
+ * @param $unit (K)ilometers, (N)autical miles, default is (M)iles.
+ * @return float distance.
+ */
+function cb_dealer_calc_distance($lat1, $lon1, $lat2, $lon2, $unit = 'M') {
+
+    if ($lat1 == $lat2 && $lon1 == $lon2) {
+        return 0;
+    }
+
+    $theta = $lon1 - $lon2;
+    $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+    $dist = acos($dist);
+    $dist = rad2deg($dist);
+    $miles = $dist * 60 * 1.1515;
+    $unit = strtoupper($unit);
+
+    if ($unit == 'K') {
+        return ($miles * 1.609344);
+    } else if ($unit == 'N') {
+        return ($miles * 0.8684);
+    } else {
+        return $miles;
+    }
+}

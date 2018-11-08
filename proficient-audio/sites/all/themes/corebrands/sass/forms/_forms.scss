@@ -1,0 +1,18 @@
+.views-exposed-form {
+
+  label {
+    font-weight: 300;
+  }
+
+  .views-exposed-widget input[type='submit'] {
+    text-transform: uppercase;
+    height: 50px;
+    margin-top: 41px;
+    border: none;
+  }
+}
+
+
+@import "form.contact";
+@import "form.search";
+@import "form.protect";

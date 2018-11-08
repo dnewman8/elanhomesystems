@@ -1,0 +1,139 @@
+#footer {
+
+  color: $lightest-gray;
+  overflow: hidden;
+
+  #footer-main {
+    background: $dark-gray;
+    padding: 50px 3%;
+    p{
+      margin:0;
+      line-height:25px;
+      img{
+        vertical-align:middle;
+        height:auto !important;
+      }
+      a{
+        color:#fff;
+      }
+    }
+  }
+  .block-p6-helper{
+
+    @include media($medium-screen) {
+      @include span-columns(6);
+    }
+
+    #ui-footer-nav {
+      padding-left: 15px;
+    
+      a {
+        color: #ffffff;
+      }
+    }
+
+    #ui-footer-message a {
+      color: $medium-gray;
+    }
+  }
+}
+
+.footer-meta {
+  .footer-meta-col {
+    display:inline-block;
+    width:30%;
+    margin-right: 2%;
+    vertical-align: top;
+    min-width: 200px;
+    margin-bottom: 10px; 
+    @media (max-width:768px) {
+      width: 100%;
+    }
+  }
+}
+
+.footer-logo-left {
+  padding-top:1em;
+  padding-bottom: 20px;
+  width: 100%;
+	text-align: center;
+	@include media($medium-screen) {
+		text-align: left;
+  }
+
+  @include media($large-screen) {
+    @include span-columns(3);
+    padding-bottom:0;
+  }
+
+  img {
+    margin-left: 15px;
+  }
+}
+
+.copyright {
+	@include media($medium-screen) {
+  	@include span-columns(6);
+  }
+  padding-top:35px;
+}
+
+.footer-logo-right {
+	text-align: center;
+	@include media($medium-screen) {
+  	@include span-columns(3);
+		@include omega();
+		text-align: right;
+		float:right;
+  }
+  @include media($large-screen) {
+    padding-top:0;
+  }
+}
+
+.social-links {
+  background: $medium-gray;
+  padding: 1em 0;
+  @include media($medium-screen) {
+    padding: 2em 0;
+  }
+  color: white;
+  border-bottom: 2px solid white;
+  border-top: 2px solid white;
+
+  .content {
+    text-align: center;
+
+    li {
+      display: inline;
+      padding: 0 4%;
+      @media (max-width:450px){
+        padding: 0 1%;
+      }
+    }
+
+    a {
+      color: white;
+      font-size: 2em;
+      margin-right: 0.5em;
+      line-height:1px;
+      @include media($medium-screen) {
+        margin-right: 1em;
+      }
+
+      &:hover {
+        color: $light-gray;
+      }
+    }
+  }
+}
+
+@media (max-width:768px) {
+  #block-p6-helper-footer {
+    text-align: center;
+    padding-bottom:20px;
+    .ui-footer-nav {
+      display: block;
+    }
+  }
+}

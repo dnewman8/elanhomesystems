@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Showcases feature.
+ */
+
+include_once 'cb_showcase.features.inc';

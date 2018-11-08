@@ -1,0 +1,57 @@
+.node-cb-rotato.bg-default {
+  @extend .gradient;
+}
+
+
+#block-views-rotatos-block-moment-static{
+  .slick-dots{
+    bottom: 3em;
+    top: auto;
+  }
+}
+
+//Home hero
+#block-views-rotatos-block-home-hero {
+  .text-wrapper {
+    @include media($small-screen) {
+      background: transparent;
+    }
+  }
+}
+
+@media only screen and (min-width: 1025px) and (min-height: 581px)  {
+
+  .moments-static .views-row-1 .text-wrapper:before {
+    width: 60px;
+    height: 56.19px;
+    @include svg-background(icon-presets);
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+  }
+  .moments-static .views-row-2 .text-wrapper:before {
+    width: 60px;
+    height: 60px;
+    @include svg-background(icon-remote);
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+  }
+  .moments-static .views-row-3 .text-wrapper:before {
+    width: 48px;
+    height: 54px;
+    @include svg-background(icon-lock);
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+  }
+  .moments-static .views-row-4 .text-wrapper:before {
+    width: 60px;
+    height: 43.38px;
+    @include svg-background(icon-wifi);
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+  }
+}
+
+
+#block-views-rotatos-block-moment-static .moments-static .view-content{
+  background: #e5e5e5;
+}

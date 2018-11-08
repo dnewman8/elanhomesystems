@@ -1,0 +1,67 @@
+<?php
+/**
+ * @file
+ * Install file.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function modal_contact_install() {
+  $t = get_t();
+  $default_to = variable_get('site_mail');
+  $default_subject = '[name] has send message from [sitename]';
+  $default_body = 'Good day,'."\r\n\n".'[name] has send submission message from [sitename]'."\r\n\n".'+++++++++++++++'."\r\n".'Name: [name]'."\r\n".'Email: [email]'."\r\n".'Message:'."\r\n".'[message]'."\r\n".'+++++++++++++++'."\r\n\n".'Thank you'."\r\n\n".'[sitename]'."\r\n".'[siteurl]';
+
+  $default_subthank = '[name], Thank you for your submission for [sitename]';
+  $default_thank = 'Good day [name],'."\r\n\n".'Thank you for contacting us, we will review your email and back to you as soon possible.'."\r\n".'We attached your submission for your copy;'."\r\n\n".'+++++++++++++++'."\r\n".'Name: [name]'."\r\n".'Email: [email]'."\r\n".'Message:'."\r\n".'[message]'."\r\n".'+++++++++++++++'."\r\n\n".'Thank you'."\r\n\n".'[sitename]'."\r\n".'[siteurl]';
+  
+  variable_set('modal_contact', array(
+    'enabled' => TRUE,
+	'to' => $default_to,
+	'subject' => $default_subject,
+	'body' => $default_body,
+	'subthank' => $default_subthank,
+	'thankyou' => $default_thank,
+	'title' => $t('Contact Us'),
+	'pretext' => $t('Use this form to reach us, we\'ll response you as soon possible.'),
+    'theme' => 'default',
+    'align' => 'right',
+    'top' => '45%',
+    'image' => drupal_get_path('module', 'modal_contact') . '/assets/imgs/contact.png',
+    'alt' => $t('Contact Us'),
+    'deny' => 'admin*'."\n".'contactus',
+    'allow' => 'admin/appearance/contactform',
+	
+	// stmp server
+	'smtp' => 'off',
+	'host' => 'localhost',
+	'auth' => 'false',
+	'user' => 'user@webmail.com',
+	'secret' => 'abc1234',
+	'secure' => 'none',
+	'port' => 27,
+  ));
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function modal_contact_uninstall() {
+  variable_del('modal_contact');
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function modal_contact_update_7101() {
+  $settings = variable_get('modal_contact', array());
+  variable_set('modal_contact', $settings);
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function modal_contact_update_7100() {
+  modal_contact_install();
+}

@@ -1,0 +1,129 @@
+
+// Slick slider overrides.
+// Content styling for frontpage rotato
+
+#block-views-brands-block-1{
+  .with-arrows .slick-slide{
+    padding:0;
+    overflow:hidden;
+  }
+  .active{
+    button:before{
+      display:none;
+    }
+  }
+  .links{
+    background: $c-red;
+    padding: 1.3em;
+
+    position: relative;
+    color:#fff;
+    display:none;
+    img{
+      max-width: 150px;
+      @include media($small-screen) {
+        max-width: 250px;
+      }
+      width: auto;
+    }
+    .close{
+      position: absolute;
+      right: 0.5em;
+      top: 0.4em;
+      cursor: pointer;
+      text-indent: -9999px;
+      background: url('../img/close-button.png');
+      background-size: 25px;
+      width: 25px;
+      height: 25px;
+    }
+    .logo{
+      border-bottom: 1px solid #fff;
+      font-size: em(36);
+      padding-bottom: 5px;
+      margin-bottom: 0.5em;
+      width: 80%;
+      @include media($small-screen) {
+        padding-bottom: 15px;
+        margin-bottom: 1em;
+      }
+
+    }
+    .link{
+      @include media($small-screen) {
+        margin-top: 2em;
+        margin-bottom: 1em;
+      }
+      a{
+        padding:0.5em 1em;
+        border:1px solid #fff;
+        color:#fff;
+        display:inline-block;
+        &:hover{
+          color:#fff;
+        }
+      }
+    }
+    //display:none;
+    @media screen and (min-width:560px) and (max-width:1070px){
+      padding: 1em !important;
+      p{
+        font-size:1em !important;
+      }
+      .logo {
+        padding-bottom: 5px !important;
+        margin-bottom: 15px !important;
+      }
+    }
+  }
+  .views-field-field-rotato-vertical{
+    position:relative;
+    .title{
+      font-size: em(36);
+      color:#fff;
+      position:absolute;
+      top: 0.5em;
+      left: 0.5em;
+      @include media($small-screen) {
+        top: 2em;
+        left: 1em;
+      }
+      display:inline-block;
+      cursor:pointer;
+      .toggle{
+        border: 1px solid #fff;
+        border-radius: 50%;
+        font-size: 0.625em;
+        width: 23px;
+        height: 23px;
+        display: inline-block;
+        line-height: 22px;
+        text-align: center;
+        margin-left: 5px;
+        position: relative;
+        top: -3px;
+      }
+    }
+  }
+  .slick-prev,.slick-next{
+    font-weight: 300;
+    text-transform:none;
+    margin:0;
+    height: auto;
+    width: auto;
+  }
+
+  .slick-prev {
+    left: 20px;
+    &:before {
+      content: "n";
+    }
+  }
+  .slick-next {
+    right: 20px;
+    &:before {
+      content: "m";
+    }
+  }
+}
+

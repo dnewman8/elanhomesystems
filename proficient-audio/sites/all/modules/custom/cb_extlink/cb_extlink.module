@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the CB: External links feature.
+ */
+
+include_once 'cb_extlink.features.inc';

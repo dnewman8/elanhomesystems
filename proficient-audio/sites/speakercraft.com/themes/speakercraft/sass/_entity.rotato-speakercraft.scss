@@ -1,0 +1,40 @@
+.node-cb-rotato {
+  background: #474747;
+}
+
+#block-views-rotatos-block-moment-static{
+  .slick-dots{
+    bottom: 3em;
+    top: auto;
+  }
+}
+
+@media only screen and (min-width: 1025px) and (min-height: 581px)  {
+
+  .moments-static .views-row-1 .text-wrapper:before {
+    width: 63px;
+    height: 61px;
+    @include svg-background(icon-apartment);
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+  }
+  .moments-static .views-row-2 .text-wrapper:before {
+    width: 64px;
+    height: 33px;
+    @include svg-background(icon-tv);
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+  }
+  .moments-static .views-row-3 .text-wrapper:before {
+    width: 61px;
+    height: 59px;
+    @include svg-background(icon-chair);
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+  }
+}
+
+#block-views-rotatos-block-moment-static .moments-static .view-content{
+  background: #474747;
+}
+

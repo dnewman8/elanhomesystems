@@ -1,0 +1,336 @@
+#header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  width: 100%;
+  background: white;
+  background: rgba(255,255,255,0.9);
+  .container {
+    position: relative;
+  }
+
+  #logo {
+    height: 47px;
+    float: left;
+    padding-top: 1.3em;
+    padding-left: 1.3em;
+    @include media($menu-medium) {
+      height: 65px;
+    }
+    @include media($large-screen) {
+      height: 100px;
+    }
+  }
+
+  #secondary-menu {
+    float: right;
+    display:inline;
+
+    li {
+      float: left;
+
+      a {
+        height:47px;
+        //width:47px;
+        font-size: 0.7em;
+        line-height: 1.5em;
+        padding: 15px 9px;
+        @include media($menu-medium) {
+          padding: 0 1em;
+          width:auto;
+          height: 65px;
+          line-height: 65px;
+          font-size: em(18);
+        }
+        @include media($large-screen) {
+          padding: 1.5em 2em;
+          height: 100px;
+          font-size: em(22);
+          line-height:inherit;
+        }
+        color: black;
+        display: block;
+        font-weight: 300;
+        border-left: 1px solid $light-gray;
+
+
+        &:hover,
+        &.active-trail {
+          background: $primary-accent-color;
+          color: white;
+        }
+      }
+    }
+
+    .links {
+      float:left;
+      @include media($small-screen) {
+        float: right;
+      }
+    }
+  }
+
+  #header-region {
+    background: $medium-gray;
+    position: absolute;
+    top: 47px;
+    @include media($menu-medium) {
+      top: 65px;
+    }
+    @include media($large-screen) {
+      top:100px;
+    }
+    left: 0;
+    margin: 0 1em;
+    width: calc(100% - 2em);
+    color: $light-gray;
+    z-index: 100;
+    display: none;
+  }
+
+  #menu-trigger {
+
+    float: right;
+
+    .icon {
+      color: white;
+      display: block;
+      text-align: center;
+      cursor: pointer;
+      font-size: 1.5em;
+      padding-top: 8px;
+      width: 38px;
+      height: 47px;
+      @include media($menu-medium) {
+        font-size: 2.5em;
+        width: 90px;
+        height: 65px;
+      }
+      @include media($large-screen) {
+        font-size: 3em;
+        padding-top: 25px;
+        color: white;
+        width: 140px;
+        height: 100px;
+      }
+    }
+
+    .open-menu {
+      background: $primary-accent-color;
+
+      &:before {
+        opacity: 1;
+        @include transition(all 1s ease 0s);
+      }
+    }
+
+    .close-menu {
+      position: absolute;
+      top: 0;
+      right: 16px;
+      @include media($menu-medium) {
+        right: 18px;
+      }
+      @include media($large-screen) {
+        right: 16px;
+      }
+
+      &:before {
+        opacity: 0;
+        @include transition(all 1s ease 0s);
+      }
+    }
+
+    &.open {
+      .open-menu:before {
+        opacity: 0;
+        @include transition(all 1s ease 0s);
+      }
+
+      .close-menu:before {
+        opacity: 1;
+        @include transition(all 1s ease 0s);
+      }
+    }
+  }
+
+  #block-menu-block-1:not(.menu-accordion) {
+
+    span.nolink {
+      font-size: em(28);
+      display: block;
+      margin-bottom: 1em;
+    }
+
+    .content {
+      @include clearfix;
+      width: 90%;
+      margin: 0 5% 3em 5%;
+
+      li {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        &.expanded {
+          @include span-columns(3);
+          border-right: 1px solid $light-gray;
+          height: 325px;
+          padding-left: 1.5%;
+
+          &.last {
+            border: none;
+          }
+        }
+      }
+
+      a {
+        color: $lightest-gray;
+        line-height: 2.25;
+
+        &:hover,
+        &.active {
+          color: $primary-accent-color;
+        }
+      }
+    }
+
+  }
+  #block-menu-block-1.menu-accordion {
+    @media (max-width:768px){
+      overflow: scroll;
+    }
+    height: auto;
+    //height of screen minus header + search
+    max-height: calc(100vh - 92px);
+    @include media($medium-screen) {
+      height: auto;
+    }
+    span.nolink {
+      border-bottom: 1px solid #707070;
+      border-top: 1px solid #707070;
+      position: relative;
+      display: block;
+      line-height: 45px;
+      padding: 0 15px;
+      &:after {
+        position: absolute;
+        content: "+";
+        display: block;
+        width: 45px;
+        height: 45px;
+        border-left: 1px solid #555555;
+        right:0;
+        top:0;
+        text-align:center;
+        font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+        font-size:1.3em;
+      }
+      @include media($medium-screen) {
+        font-size: 1.5em;
+        display: block;
+        margin-bottom: 0.2em;
+        border:0;
+        padding:0;
+        &:after {
+          display: none;
+        }
+      }
+      @include media($medium-screen) {
+        font-size: em(23);
+        display: block;
+        border: 0;
+        margin-bottom: 0.5em;
+        padding:0;
+      }
+      @include media(1080px) {
+        font-size: em(28);
+        margin-bottom: 1em;
+      }
+    }
+    span.nolink.open {
+      &:after {
+        content: "-";
+      }
+    }
+
+    ul ul {
+      display: none;
+      @include media($medium-screen) {
+        display: block;
+      }
+    }
+
+    .content {
+      @include clearfix;
+      //Add overflow to subtheme if needed
+      //overflow-y: scroll;
+      @include media($medium-screen) {
+        width: 100%;
+        padding: 3%;
+      }
+      @include media($medium-screen) {
+        width: 100%;
+        padding: 0;
+        margin: 1.5%;
+        overflow-y: hidden;
+      }
+      @include media(1080px) {
+        width: 90%;
+        margin: 0 5% 3em 5%;
+      }
+
+
+      li {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        &.expanded {
+          @include media($medium-screen) {
+            width: 50%;
+            float: left;
+          }
+          @include media($medium-screen) {
+            border-right: 1px solid $light-gray;
+            @include span-columns(3);
+            padding-left: 1.5%;
+            // height: 325px; // Fix equal-height columns issue.
+            padding-bottom: 99999px;
+            margin-bottom: -99999px;
+          }
+          @include media(1080px) {
+            padding-left: 1.5%;
+          }
+
+          &.last {
+            border: none;
+          }
+
+          li{
+            padding:3px 30px;
+            background:#595959;
+            border-bottom:1px solid #7A7A7A;
+            @include media($medium-screen) {
+              padding:0;
+              border:0;
+              background:none;
+            }
+          }
+        }
+      }
+      a {
+        color: $light-gray;
+        line-height: 2.25;
+        &:hover,
+        &.active {
+          color: $primary-accent-color;
+        }
+      }
+    }
+
+  }
+
+
+
+}

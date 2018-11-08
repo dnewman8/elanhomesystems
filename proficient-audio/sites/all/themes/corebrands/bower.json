@@ -1,0 +1,18 @@
+{
+  "name": "Core Brands",
+  "version": "0.0.1",
+  "dependencies": {
+    "normalize.css": "latest",
+    "modernizr": "latest",
+    "bourbon": "4.2.*",
+    "neat": "1.7.*",
+    "slick-carousel": "1.5.*",
+    "detectizr": "2.*",
+    "fontawesome": "4.*",
+    "colorbox": "1.5.*",
+    "please-wait": "~0.0.5",
+    "spinkit": "~1.2.5",
+    "jquery.easing": "^1.3.1"
+  },
+  "private": true
+}

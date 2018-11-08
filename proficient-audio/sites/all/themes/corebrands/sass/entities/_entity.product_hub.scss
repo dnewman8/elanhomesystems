@@ -1,0 +1,122 @@
+.node-cb-product-hub {
+  .field-name-body {
+    font-size: em(28);
+    color: $medium-gray;
+    text-align: center;
+    padding: 2em 0;
+    @include media($medium-screen) {
+      font-size: em(28);
+      padding: 1em 0;
+    }
+    h2{
+      font-size: 2em;
+      margin: 0;
+      @include media($medium-screen) {
+        font-size: 3em;
+        margin: 0 0 0.75em;
+      }
+    }
+    .field-items{
+      padding: 0 10%;
+    }
+  }
+
+  // Product categories
+  .field-name-field-category-section {
+    @include clearfix;
+
+    & > .field-items > .field-item {
+      padding: 0;
+      margin: 0 0 2em 0;
+
+      @include media($menu-medium) {
+        @include span-columns(6);
+        @include omega(2n);
+      }
+
+      background: $dark-gray;
+      color: white;
+    }
+
+    .field-name-field-ph-description {
+      padding: 2em 5%;
+      p {
+        font-size: em(18);
+        min-height: 135px;
+      }
+
+
+      h2 {
+        color: white;
+      }
+    }
+
+    .field-name-field-ph-link {
+      text-align: center;
+      margin-bottom: 3em;
+      a {
+        color: $lighter-gray;
+        padding: 0.5em 3em;
+        text-transform: uppercase;
+        border: 1px solid $lighter-gray;
+
+        &:hover {
+          color: white;
+          border-color: white;
+        }
+      }
+    }
+  }
+
+  // Product listings
+  .field-name-field-listing-title h2 {
+    color: $dark-gray;
+    text-align: center;
+  }
+
+  .field-name-field-hub-products {
+    margin-bottom: 3em;
+
+    .field-item {
+      margin-bottom: 2em;
+
+      @include media(new-breakpoint(min-width 0px max-width 419px, 4)) {
+        @include span-columns(4);
+        float:left;
+      }
+      @include media(new-breakpoint(min-width 420px max-width 767px, 4)) {
+        @include span-columns(2);
+        @include omega(2n);
+      }
+      @include media(new-breakpoint(min-width 762px max-width 899px, 9)) {
+        @include span-columns(3);
+        @include omega(3n);
+        margin-bottom: 2em;
+      }
+      @include media(new-breakpoint(min-width 900px 12)) {
+        @include span-columns(3);
+        @include omega(4n);
+      }
+
+      h3 {
+        margin: 1em 0 0 0;
+
+        a {
+          color: $medium-gray;
+
+          &:hover {
+            color: $primary-accent-color;
+          }
+        }
+      }
+    }
+
+    .field-name-field-product-featured-image {
+      background:#fff;
+      img {
+        border: 1px solid $medium-gray;
+        padding:20px;
+      }
+    }
+  }
+}

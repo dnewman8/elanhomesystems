@@ -1,0 +1,21 @@
+%vertical-align {
+  @include transform(translateY(-50%));
+  position: absolute;
+  top: 50%;
+  left: 0;
+}
+
+@mixin transition($properties) {
+  -webkit-transition: $properties;
+  -moz-transition: $properties;
+  -o-transition: $properties;
+  transition: $properties;
+}
+
+// Inline SVG background image with a PNG fallback
+@mixin svg-background($image-name) {
+  background-image:url("/sites/all/themes/corebrands/img/" + $image-name + ".png");
+  html.svg & { // modernizr support check
+    background-image: url("/sites/all/themes/corebrands/img/svg/" + $image-name + ".svg");
+  }
+}

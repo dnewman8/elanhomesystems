@@ -1,0 +1,20 @@
+diff --git a/entitycache.install b/entitycache.install
+index 75f3c79..098dc6b 100644
+--- a/entitycache.install
++++ b/entitycache.install
+@@ -34,6 +34,7 @@ function entitycache_enable() {
+  */
+ function entitycache_disable() {
+   variable_del('entitycache_enabled');
++  registry_update();
+ }
+ 
+ /**
+@@ -41,6 +42,7 @@ function entitycache_disable() {
+  */
+ function entitycache_uninstall() {
+   variable_del('entitycache_disabled_entity_types');
++  registry_update();
+ }
+ 
+ /**

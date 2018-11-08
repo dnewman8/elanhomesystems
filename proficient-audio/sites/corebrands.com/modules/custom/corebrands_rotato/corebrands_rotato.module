@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Rotato feature.
+ */
+
+include_once 'corebrands_rotato.features.inc';

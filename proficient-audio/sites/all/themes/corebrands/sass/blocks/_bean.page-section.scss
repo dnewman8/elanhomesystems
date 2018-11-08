@@ -1,0 +1,17 @@
+.bean-page-section {
+  margin-bottom: 1em;
+
+  .group-text-wrapper {
+    background: $lightest-gray;
+    padding: 2em 5%;
+
+    h2 {
+      color: $dark-gray;
+      font-size: em(30);
+    }
+
+    p {
+      font-size: em(18);
+    }
+  }
+}

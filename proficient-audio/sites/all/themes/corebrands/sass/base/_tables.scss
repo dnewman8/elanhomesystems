@@ -1,0 +1,174 @@
+table {
+  border-collapse: collapse;
+  font-feature-settings: "kern", "liga", "tnum";
+  margin: $small-spacing 0;
+  table-layout: fixed;
+  width: 100%;
+}
+
+th {
+  border-bottom: 1px solid shade($base-border-color, 25%);
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: $small-spacing 0;
+  text-align: left;
+  color: $medium-gray;
+  font-size: em(18);
+  letter-spacing: 1px;
+
+  a {
+    color: $medium-gray;
+
+    &:hover {
+      color: $primary-accent-color;
+    }
+  }
+}
+
+td {
+  border-bottom: $base-border;
+  padding: $small-spacing 0;
+}
+
+tr,
+td,
+th {
+  vertical-align: middle;
+}
+
+tr {
+  &.odd,
+  &.even {
+    background: none;
+  }
+}
+
+td {
+  font-size: em(18);
+  padding: 1em 0;
+
+  &.active {
+    background: none;
+  }
+}
+
+/**
+ * Responsive Tables.
+ *
+ * Usage:
+ *  - Add `responsive-table` class name to a tabular-data table.
+ *  - Add `title` attribute to each TBODY TD cell with matching column title as the value.
+ *
+ * Example:
+ * <table class="responsive-table">
+ *   <thead>
+ *     <tr>
+ *       <th>First Name</th>
+ *       <th>Last Name</th>
+ *     </tr>
+ *   </thead>
+ *   <tbody>
+ *     <tr>
+ *       <td title="First Name">Tyrion</td>
+ *       <td title="Last Name">Lannister</td>
+ *     </tr>
+ *     <tr>
+ *       <td title="First Name">Daenerys</td>
+ *       <td title="Last Name">Targaryen</td>
+ *     </tr>
+ *   </tbody>
+ * </table>
+ */
+@media only screen and (max-width: 760px), (min-device-width: 768px) and (max-device-width: 1024px) {
+  table.responsive-table {
+    &, thead, tbody, tr, th, td {
+      display: block;
+    }
+
+    thead tr {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+    }
+
+    tbody td {
+      border: none;
+      border-top: 1px solid #EEEEEE;
+      position: relative;
+      padding-top: 2em;
+      padding-left: 1em;
+      padding-bottom: 0.5em;
+
+      &:first-child {
+        border-top: none;
+      }
+
+      &:before {
+        position: absolute;
+        top: 0.25em;
+        left: 1em;
+        right: 1em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        content: attr(title);
+        color: #CCCCCC;
+      }
+    }
+  }
+}
+
+/**
+ * Striped table.
+ */
+$table-border-color: #DCDCDC;
+$table-bg-accent: #FAFAFA;
+
+table.striped-table {
+  width: 100%;
+  max-width: 100%;
+  // Cells
+  > thead,
+  > tbody,
+  > tfoot {
+    > tr {
+      > th,
+      > td {
+        padding: 0.5em;
+        line-height: inherit;
+        vertical-align: top;
+        border: 1px solid $table-border-color;
+        color: #474747;
+      }
+    }
+  }
+  // Bottom align for column headings
+  > thead > tr > th {
+    vertical-align: bottom;
+    border-bottom: 2px solid $table-border-color;
+    background-color: #EEE;
+    color: #666;
+  }
+  // Remove top border from thead by default
+  > caption + thead,
+  > colgroup + thead,
+  > thead:first-child {
+    > tr:first-child {
+      > th,
+      > td {
+        // border-top: 0;
+      }
+    }
+  }
+  // Account for multiple tbody instances
+  > tbody + tbody {
+    border-top: 2px solid $table-border-color;
+  }
+  > tbody > tr:nth-of-type(odd) {
+    background-color: $table-bg-accent;
+  }
+  // Nesting
+  table {
+    background-color: #FFFFFF;
+  }
+}

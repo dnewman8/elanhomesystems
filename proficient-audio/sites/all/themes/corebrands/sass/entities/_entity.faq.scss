@@ -1,0 +1,52 @@
+.node-cb-faq {
+  .faq-question {
+
+    h3 {
+      font-size: em(30);
+      margin-bottom: 0;
+    }
+
+    a {
+      color: $dark-gray;
+
+
+      &:hover {
+        color: $primary-accent-color;
+      }
+    }
+
+    span.title {
+      float: left;
+      margin-right: 0.5em;
+    }
+
+    span.icon {
+      float: left;
+      margin-top: 4px;
+    }
+  }
+
+  .faq-answer {
+    font-size: em(18);
+    line-height: 1;
+    display: none;
+  }
+}
+
+
+// Landing block
+#block-views-faq-block {
+  margin: 3em 0;
+
+  .views-row {
+    margin-bottom: 2em;
+    padding-bottom: 2em;
+    border-bottom: 1px solid $lightest-gray;
+  }
+
+  .views-row-first {
+    margin-top: 2em;
+    padding-top: 2em;
+    border-top: 1px solid $lightest-gray;
+  }
+}

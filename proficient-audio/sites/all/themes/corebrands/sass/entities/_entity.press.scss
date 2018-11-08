@@ -1,0 +1,153 @@
+.node-cb-press {
+  &.node-teaser {
+    .field-name-field-press-image {
+      @include span-columns(3);
+    }
+
+    .text-wrapper {
+      @include span-columns(9);
+
+      &.no-image {
+        @include span-columns(10);
+      }
+    }
+
+    .field-name-field-press-date {
+      font-size: em(18);
+      margin-bottom: 1em;
+    }
+
+    h2 {
+      font-size: em(34);
+      margin-bottom: 0.5em;
+      font-weight: 300;
+    }
+
+    .field-name-field-description {
+      font-size: em(28);
+
+      p {
+        margin: 0;
+      }
+    }
+  }
+
+  &.view-mode-full {
+    .content-main {
+      padding: 1.5em 0;
+      @include media(new-breakpoint(min-width 0px max-width 767px, 4)) {
+        @include span-columns(4);
+      }
+      @include media(new-breakpoint(min-width 762px max-width 899px, 9)) {
+        @include span-columns(6);
+      }
+      @include media(new-breakpoint(min-width 900px 12)) {
+        @include span-columns(8);
+      }
+    }
+
+    .content-right {
+      padding: 1.5em 0;
+      @include media(new-breakpoint(min-width 0px max-width 767px, 4)) {
+        @include span-columns(4);
+      }
+      @include media(new-breakpoint(min-width 762px max-width 899px, 9)) {
+        @include span-columns(3);
+        @include omega();
+      }
+      @include media(new-breakpoint(min-width 900px 12)) {
+        @include span-columns(4);
+        @include omega();
+      }
+
+      .block {
+        margin-bottom: 2em;
+        padding: 0 7%;
+        border-left: 1px solid $lightest-gray;
+      }
+
+      h3 {
+        font-size: em(30);
+      }
+
+      .press-author {
+        background: $lightest-gray;
+        padding: 2em 7%;
+
+        .views-row {
+          @include clearfix();
+        }
+
+        .views-field-field-user-photo {
+          float: left;
+        }
+
+        .views-field-field-user-name {
+          font-weight: 700;
+        }
+
+        p {
+          margin: 0;
+        }
+
+        .author-meta {
+          margin-left: 100px;
+        }
+      }
+
+      .press-related {
+        font-size: em(18);
+        line-height: 1;
+
+        .views-row {
+          margin-bottom: 2em;
+        }
+
+        .views-field-field-press-date,
+        .views-field-field-user-name{
+          font-weight: 700;
+        }
+
+        .views-field-title {
+          margin-top: 1em;
+        }
+      }
+    }
+
+    a.back-link {
+      font-size: em(24);
+      font-weight: 300;
+
+      i.icon:before {
+        float: left;
+        margin-top: 4px;
+      }
+    }
+
+    .field-name-field-press-date {
+      font-size: em(18);
+      font-weight: 700;
+      margin: 1em 0 1.5em 0;
+    }
+
+    h1 {
+      font-size: em(30);
+      color: $dark-gray;
+      font-weight: 400;
+    }
+
+    .field-name-field-press-body {
+      font-size: em(18);
+    }
+  }
+}
+
+// Press Release listing block
+#block-views-press-releases-block {
+  margin: 0 0 6em 0;
+
+  .views-row {
+    padding: 4em 0;
+    border-bottom: 1px solid $lightest-gray;
+  }
+}

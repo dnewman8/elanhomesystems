@@ -1,0 +1,26 @@
+name = CoreBrands Netsuite
+description = Netsuite integration for importing products and dealers.
+package = CoreBrands
+core = 7.x
+version = 7.x-1.0
+
+dependencies[] = migrate
+dependencies[] = migrate_extras
+
+; Netsuite API resources
+files[] = lib/OAuth.php
+files[] = lib/BaseController.php
+files[] = lib/Product.php
+files[] = lib/ProductImage.php
+files[] = lib/ProductResource.php
+files[] = lib/ProductCategory.php
+files[] = lib/Dealer.php
+
+
+; Migration classes
+files[] = entities/DealerMigration.php
+files[] = entities/ProductMigration.php
+files[] = entities/ProductCategoryMigration.php
+files[] = entities/ProductSubCategoryMigration.php
+files[] = entities/ProductSubTypeMigration.php
+files[] = entities/ProductWebFamilyMigration.php

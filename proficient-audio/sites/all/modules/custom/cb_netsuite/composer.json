@@ -1,0 +1,15 @@
+{
+  "name": "project6/netsuite",
+  "description": "Interact with the Netsuite API",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Johannes Schmidt",
+      "email": "johannes@project6.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.4.0",
+    "guzzlehttp/guzzle": "~6.0"
+  }
+}

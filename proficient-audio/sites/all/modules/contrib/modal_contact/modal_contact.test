@@ -1,0 +1,29 @@
+<?php
+/**
+ * @file
+ * Test file.
+ */
+
+/**
+ * Functional tests.
+ */
+class ContactFormTestCase extends DrupalWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Contact Form',
+      'description' => 'Tests if the Contact Form is enabled.',
+      'group' => 'Contact Form',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('modal_contact');
+    $web_user = $this->drupalCreateUser(array('access content'));
+    $this->drupalLogin($web_user);
+  }
+
+  public function testContactForm() {
+    $this->drupalGet('<front>');
+    $this->assertRaw("<div id='modal_contact'>", 'The Contact Form is present.');
+  }
+}

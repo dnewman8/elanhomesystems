@@ -1,0 +1,124 @@
+#block-cb-dealer-cb-dealer-search-results {
+  h3 {
+    font-size: em(24);
+    line-height: 1;
+    margin: 0;
+  }
+
+  a.phone {
+    color: #474747;
+  }
+
+  .dealer-elite {
+    line-height: 1;
+    text-transform: uppercase;
+    font-size: em(16);
+    color: #999;
+  }
+}
+
+// Footer version of dealer search form.
+#footer #block-cb-dealer-cb-dealer-search {
+  padding: 4em 0;
+  background: $primary-accent-color;
+  @include clearfix;
+
+  h2 {
+    color: white;
+  }
+
+  input[type="text"],
+  input[type="email"] {
+    background: transparent;
+    color: white;
+    border: 1px solid white;
+    height: 60px;
+    padding: 1em;
+    text-transform: uppercase;
+
+    @include placeholder {
+      color: white;
+    }
+  }
+
+  input[type="submit"] {
+    background: white;
+    color: $primary-accent-color;
+    width: 80%;
+    margin: 2em auto;
+    display: block;
+    height: 60px;
+    padding-top: 5px;
+    clear: both;
+    @include media($medium-screen) {
+      width: 40%;
+    }
+  }
+
+  .form-item {
+    @include span-columns(12);
+    @include media($medium-screen) {
+      @include span-columns(4);
+    }
+  }
+
+  .form-item-zip-code {
+    @include omega;
+  }
+}
+
+// Content area version of the dealer search form.
+#content-area .dealer-search-form {
+  position: absolute;
+  top: 48%;
+  left: 10%;
+  width: 80%;
+
+  @media (min-width: 540px) and (max-width: 990px){
+    top: 35%;
+  }
+  @media (max-width: 539px){
+    top: 2em;
+    margin-bottom: 2em;
+    width:100%;
+    left:0;
+    position:relative
+  }
+
+  h2 {
+    display: none;
+  }
+
+  .form-item {
+    width: 25%;
+    float: left;
+    padding-right: 5px;
+    margin: 0;
+    @media (min-width: 540px) and (max-width: 990px){
+      width:50%;
+    }
+    @media (max-width: 539px){
+      width: 100%;
+    }
+
+    input {
+      background: white;
+    }
+  }
+
+  .form-submit {
+    width: 25%;
+    float: left;
+    @media (min-width: 540px) and (max-width: 990px){
+      width:50%;
+    }
+    @media (max-width: 539px){
+      width: 100%;
+    }
+  }
+}
+
+#content-area .has-results .dealer-search-form {
+  position: relative;
+  margin-top: 3em;
+}

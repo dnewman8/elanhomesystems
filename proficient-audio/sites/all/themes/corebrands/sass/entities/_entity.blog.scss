@@ -1,0 +1,228 @@
+// Featured blog post
+#block-views-blog-block-1 {
+
+  .content {
+    @include clearfix;
+    @include media($large-screen) {
+      background: $dark-gray;
+    }
+    position: relative;
+    color: white;
+  }
+
+  .views-field-field-blog-image {
+    line-height: 8px;
+    width:100%;
+    float:none;
+    text-align:center;
+    @include media($large-screen) {
+      border-left:0;
+      width: 50%;
+      float: right;
+    }
+
+  }
+
+  .text-wrapper {
+    width: 100%;
+    padding: 5%;
+    text-align:center;
+    background: $dark-gray;
+    @include media($large-screen) {
+      width: 50%;
+      padding: 0 5%;
+      background:none;
+      @include transform(translateY(-50%));
+      position: absolute;
+      top: 50%;
+      left: 0;
+    }
+
+    h3 {
+      font-weight: 400;
+      font-size: em(48);
+      line-height: 1;
+      margin-bottom: 0.5em;
+    }
+
+    .views-field-body {
+      font-size: em(24);
+      line-height: 1.1;
+      margin-bottom: 1.5em;
+    }
+
+    .more-link {
+
+      text-transform: uppercase;
+      border: 1px solid $medium-gray;
+      padding: 0.5em 1em;
+      color: $medium-gray;
+
+      &:hover {
+        color: white;
+        border-color: white;
+      }
+    }
+  }
+}
+
+// Blog landing blog
+#block-views-blog-block {
+  margin: 4em 0;
+
+  .view-content {
+    @include clearfix;
+  }
+
+  .views-row {
+    @include media(new-breakpoint(min-width 0px max-width 419px, 4)) {
+      @include span-columns(4);
+      float:left;
+    }
+    @include media(new-breakpoint(min-width 420px max-width 767px, 4)) {
+      @include span-columns(2);
+      @include omega(2n);
+    }
+    @include media(new-breakpoint(min-width 762px max-width 899px, 9)) {
+      @include span-columns(3);
+      @include omega(3n);
+      margin-bottom: 2em;
+    }
+    @include media(new-breakpoint(min-width 900px 12)) {
+      @include span-columns(4);
+      @include omega(3n);
+    }
+
+    margin-bottom: 3em;
+  }
+}
+
+// Blog node
+.node-cb-blog {
+  &.view-mode-teaser {
+
+    .field-name-field-blog-date,
+    .blog-author-name {
+      font-weight: 700;
+      font-size: em(18);
+    }
+
+    h2 {
+      font-size: em(30);
+      font-weight: 300;
+      margin: 0.75em 0;
+    }
+
+    .field-name-body {
+      font-size: em(18);
+    }
+  }
+
+  &.view-mode-full {
+    .content-main {
+      padding: 1.5em 0;
+      @include media(new-breakpoint(min-width 0px max-width 767px, 4)) {
+        @include span-columns(4);
+      }
+      @include media(new-breakpoint(min-width 762px max-width 899px, 9)) {
+        @include span-columns(6);
+      }
+      @include media(new-breakpoint(min-width 900px 12)) {
+        @include span-columns(8);
+      }
+    }
+
+    .content-right {
+      padding: 1.5em 0;
+      @include media(new-breakpoint(min-width 0px max-width 767px, 4)) {
+        @include span-columns(4);
+      }
+      @include media(new-breakpoint(min-width 762px max-width 899px, 9)) {
+        @include span-columns(3);
+        @include omega();
+      }
+      @include media(new-breakpoint(min-width 900px 12)) {
+        @include span-columns(4);
+        @include omega();
+      }
+
+      .block {
+        margin-bottom: 2em;
+        padding: 0 7%;
+        border-left: 1px solid $lightest-gray;
+      }
+
+      h3 {
+        font-size: em(30);
+      }
+
+      .blog-author {
+        background: $lightest-gray;
+        padding: 2em 7%;
+
+        .views-row {
+          @include clearfix();
+        }
+
+        .views-field-field-user-photo {
+          float: left;
+        }
+
+        .views-field-field-user-name {
+          font-weight: 700;
+        }
+
+        p {
+          margin: 0;
+        }
+
+        .author-meta {
+          margin-left: 100px;
+        }
+      }
+
+      .blog-related {
+        font-size: em(18);
+        line-height: 1;
+
+        .views-row {
+          margin-bottom: 2em;
+        }
+
+        .views-field-field-blog-date,
+        .views-field-field-user-name{
+          font-weight: 700;
+        }
+
+        .views-field-title {
+          margin-top: 1em;
+        }
+      }
+    }
+
+    a.back-link {
+      font-size: em(24);
+      font-weight: 300;
+
+      i.icon:before {
+        float: left;
+        margin-top: 4px;
+      }
+    }
+
+    .field-name-field-blog-date {
+      font-size: em(18);
+      font-weight: 700;
+      margin: 1em 0 1.5em 0;
+    }
+
+    h2 {
+      font-size: em(30);
+      color: $dark-gray;
+    }
+
+    .field-name-field-blog-body {
+      font-size: em(18);
+    }
+  }
+}

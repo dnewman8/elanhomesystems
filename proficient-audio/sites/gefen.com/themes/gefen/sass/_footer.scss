@@ -1,0 +1,8 @@
+#footer #block-cb-dealer-cb-dealer-search {
+  @extend .gradient;
+
+  input[type="text"],
+  input[type="email"] {
+    background-color: $e-orange;
+  }
+}

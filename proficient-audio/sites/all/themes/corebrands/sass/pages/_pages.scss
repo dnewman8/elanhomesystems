@@ -1,0 +1,25 @@
+#skip {
+    display: none;
+}
+
+#content-header h1,
+#content-header .section-title {
+    color: white;
+    background: $primary-accent-color;
+    font-size: em(40);
+    padding: .4em 0.7em;
+    margin: 0;
+    @media (max-width: 768px) {
+        padding: 0.5em;
+    }
+}
+
+.get-started-block {
+    padding: 0 2em;
+}
+
+@import "page.front";
+@import "page.search";
+.field-name-body p {
+    max-width: 1100px;
+}

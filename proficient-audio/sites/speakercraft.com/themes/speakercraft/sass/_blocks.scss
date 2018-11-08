@@ -1,0 +1,35 @@
+#block-quicktabs-see-elan {
+
+  ul.quicktabs-tabs {
+    padding: 6px;
+    li {
+      width:100%;
+      margin:0;
+
+      @include media($small-screen) {
+        width:50%;
+        margin: 0;
+        float:left;
+      }
+      @include media($medium-screen) {
+        width: calc(50% - 6px);
+        margin-right: 12px;
+
+      }
+      &.last {
+        margin: 0;
+      }
+      a{
+        padding:1em 0;
+        text-align:center;
+      }
+    }
+  }
+}
+
+#block-block-2{
+  text-align:center;
+  @include media($medium-screen) {
+    text-align:left;
+  }
+}

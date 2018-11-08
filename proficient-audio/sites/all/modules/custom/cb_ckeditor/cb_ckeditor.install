@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * Update Pathologic module settings with local_paths.
+ */
+function cb_ckeditor_update_7100() {
+  $domain = COREBRANDS_DOMAIN;
+
+  $domains = array(
+    url('http://devb.' . $domain, array('absolute' => TRUE, 'external' => TRUE)),
+    url('http://test.' . $domain, array('absolute' => TRUE, 'external' => TRUE)),
+    url('http://live.' . $domain, array('absolute' => TRUE, 'external' => TRUE)),
+    url('http://www.' . $domain, array('absolute' => TRUE, 'external' => TRUE)),
+    url('http://' . $domain, array('absolute' => TRUE, 'external' => TRUE)),
+  );
+
+  $pathologic_domains = implode("\n", $domains) . "\n";
+
+  $pathologic_settings = array(
+    'local_paths' => $pathologic_domains,
+    'protocol_style' => 'full',
+  );
+
+
+  db_update('filter')
+    ->condition('module', 'pathologic', '=')
+    ->condition('name', 'pathologic', '=')
+    ->fields(array(
+      'settings' => serialize($pathologic_settings),
+    ))
+    ->execute();
+}

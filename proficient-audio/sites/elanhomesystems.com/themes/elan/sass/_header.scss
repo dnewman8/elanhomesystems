@@ -1,0 +1,122 @@
+#header{
+	#logo{
+      padding-top: 0;
+      padding-left: 0;
+      width: 100%;
+      margin-left: 0;
+      margin-top: 10px;
+      max-width: 90px;
+      height: auto;
+      @include media($menu-medium) {
+        max-width: 125px;
+        margin-top: 23px;
+      }
+      @include media($large-screen) {
+        margin-left: 25px;
+        margin-top: 35px;
+        max-width: 194px;
+      }
+
+	}
+}
+
+#block-menu-menu-dealer-portal {
+  display: none;
+}
+
+#header {
+  #header-region {
+    background: #474747;
+  }
+  #secondary-menu {
+    ul {
+      li.menu-610 {
+        a.dealer-expanded, a:hover {
+          background: #fff;
+          color: #f78e1e;
+        }
+      }
+      ul.dealer-sub-menu {
+        display: none;
+        position: absolute;
+        background: #474747;
+        top: 100px;
+        right: 156px;
+        min-width: 197px;
+        li {
+          float: none;
+          list-style-image: none;
+          list-style-type: none;
+          margin: 0;
+          padding: 0;
+          a {
+            border: 0 none;
+            padding: 0.82em 0;
+            color: #fff;
+            height: auto;
+            font-size: 1.275em;
+            text-align: center;
+          }
+          a:hover {
+            background: #7e7e7e;
+          }
+        }
+        li.first {
+          a, a:hover {
+            border-bottom: 1px solid #aaa;
+            background: url('http://s29.postimg.org/ll7bd83z7/arrow_down.png') no-repeat;
+            background-size: 20px;
+            background-position: center -1px;
+          }
+        }
+      }
+    }
+  }
+}
+@media only screen and (max-width: 539px) {
+  #header {
+    #secondary-menu {
+      ul {
+        ul.dealer-sub-menu {
+          top: 47px;
+          right: 16px;
+          min-width: 188px;
+          li {
+            a {
+              padding: 10px 0;
+              font-size: 0.875em;
+              line-height: 25px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+@media only screen
+and (min-width: 540px)
+and (max-width: 899px) {
+  #header {
+    #secondary-menu {
+      ul {
+        ul.dealer-sub-menu {
+          top: 65px;
+          right: 105px;
+          min-width: 175px;
+          li {
+            a {
+              padding: 0;
+              font-size: 1.1em;
+              line-height: 63px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+#block-search-form{
+  input[type="submit"]{
+    text-transform:none;
+  }
+}

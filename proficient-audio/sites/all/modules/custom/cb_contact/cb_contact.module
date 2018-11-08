@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the CB Contact feature.
+ */
+
+include_once 'cb_contact.features.inc';

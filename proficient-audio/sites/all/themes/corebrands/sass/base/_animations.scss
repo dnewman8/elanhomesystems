@@ -1,0 +1,117 @@
+/**
+ * Zoomable animation on gallery images
+ */
+.gallery-tiles{
+  .field-content,
+  [class*='gallery-tile_'] .content {
+    overflow: hidden;
+    border: 1px solid white; /* fix for safari */
+  }
+  .field-content img,
+  [class*='gallery-tile_'] picture {
+    display: block;
+    -webkit-transition-duration: .3s;
+    -webkit-transition-property: transform;
+    transition-duration: .3s;
+    transition-property: transform;
+    transition-timing-function: linear;
+  }
+  .field-content:focus img,
+  .field-content:hover img,
+  [class*='gallery-tile_']:focus picture,
+  [class*='gallery-tile_']:hover picture {
+    -webkit-transform: scale(1.1) translateZ(0);
+    transform: scale(1.1) translateZ(0);
+  }
+  .no-csstransforms3d .field-content:focus img,
+  .no-csstransforms3d .field-content:hover img,
+  .no-csstransforms3d [class*='gallery-tile_']:focus picture,
+  .no-csstransforms3d [class*='gallery-tile_']:hover picture {
+    -webkit-transform: scale(1.1);
+    transform: scale(1.1);
+  }
+}
+/**
+ * Fixed/Revealing Navigation
+ */
+
+#header {
+  position: relative;
+  z-index: 10000;
+}
+.csstransitions .dettached-header #header  {
+  position: fixed;
+  visibility: hidden;
+  opacity: 0;
+}
+.csstransitions #header.header--show {
+  display: block;
+  visibility: visible;
+  opacity: 1;
+  -webkit-transition: visibility 0s, opacity .3s linear;
+  transition: visibility 0s, opacity .3s linear;
+}
+.csstransitions #header.header--hide {
+  visibility: hidden;
+  opacity: 0;
+  -webkit-transition: visibility 0s .3s, opacity .3s linear;
+  transition: visibility 0s .3s, opacity .3s linear;
+}
+#content-header {
+  margin-top: 0;
+}
+.csstransitions .dettached-header #content-header {
+  margin-top: 47px;
+}
+@media only screen and (min-width: 420px) {
+  .csstransitions .dettached-header #content-header {
+    margin-top: 65px;
+  }
+}
+@media only screen and (min-width: 769px) {
+  .csstransitions #header {
+    position: relative;
+  }
+}
+@media only screen and (min-width: 900px) {
+  .csstransitions .dettached-header #content-header {
+    margin-top: 100px;
+  }
+}
+
+/**
+ * Animated Slider Content
+ */
+
+@media only screen and (min-width: 769px) {
+  .csstransitions #block-views-rotatos-block-home-hero .slick-slider h2,
+  .csstransitions #block-views-rotatos-block-home-hero .slick-slider p {
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .csstransitions #block-views-rotatos-block-home-hero .slick-slider h2 {
+    opacity: 0;
+    -webkit-transform: translateY(-20px) translateZ(0);
+    transform: translateY(-20px) translateZ(0);
+    -webkit-transition-property: opacity, transform;
+    transition-property: opacity, transform;
+    -webkit-transition-duration: .5s;
+    transition-duration: .5s;
+    -webkit-transition-timing-function: ease-out;
+    transition-timing-function: ease-out;
+  }
+  .csstransitions #block-views-rotatos-block-home-hero .slick-slider p {
+    opacity: 0;
+    -webkit-transition-property: opacity;
+    transition-property: opacity;
+    -webkit-transition-duration: .5s;
+    transition-duration: .5s;
+  }
+  .csstransitions #block-views-rotatos-block-home-hero .slick-slider .animate-in h2 {
+    opacity: 1;
+    -webkit-transform: translateY(0) translateZ(0);
+    transform: translateY(0) translateZ(0);
+  }
+  .csstransitions #block-views-rotatos-block-home-hero .slick-slider .animate-in p {
+    opacity: 1;
+  }
+}

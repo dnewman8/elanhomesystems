@@ -1,0 +1,31 @@
+// Additional colors.
+$e-orange: #0072bc;
+
+// Base theme variables.
+$primary-accent-color: $e-orange;
+
+
+
+// featured image border
+.view-products.view-display-id-page .views-field-field-product-featured-image {
+  border:1px solid #7e7e7e; }
+
+.dealer-search-form h3{
+  text-align: center;
+  font-size: 70px;
+  margin-top: -30px;
+  @media only screen and (min-width: 539px) {
+    color:#fff;
+  }
+}
+
+#block-system-main .search-form{
+  .form-search{
+    background:#fcfcfc;
+  }
+}
+
+img.center {
+  margin: auto;
+  display: block;
+}

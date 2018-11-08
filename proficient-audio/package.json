@@ -1,0 +1,40 @@
+{
+  "name": "corebrands",
+  "homepage": "http://www.corebrands.com/",
+  "version": "0.1.1",
+  "repository": {
+    "type": "git",
+    "url": "git://git@bitbucket.org:cwcopley/core-brands.git"
+  },
+  "dependencies": {
+    "grunt": "^1.0.1",
+    "grunt-autoprefixer": "^3.0.4",
+    "grunt-contrib-sass": "^1.0.0",
+    "grunt-contrib-uglify": "^2.1.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-newer": "^1.2.0",
+    "grunt-notify": "^0.4.5"
+  },
+  "scripts": {
+    "postinstall": "sh npm_post.sh"
+  },
+  "description": "=========================== Core Brands - Process Theme Files ===========================",
+  "main": "Gruntfile.js",
+  "devDependencies": {},
+  "author": {
+    "name": "Osman Gormus",
+    "email": "osman@project6.com"
+  },
+  "maintainers": [
+    {
+      "name": "Osman Gormus",
+      "email": "osman@project6.com"
+    },
+    {
+      "name": "Johannes Schmidt",
+      "email": "johannes@project6.com"
+    }
+  ],
+  "license": "MIT",
+  "readme": "README.md"
+}

@@ -1,0 +1,14 @@
+name = CB: WYSIWYG
+description = CKEditor profile for Full HTML
+core = 7.x
+package = CoreBrands
+version = 7.x-1.0
+dependencies[] = cb_linkit
+dependencies[] = features
+dependencies[] = filter
+dependencies[] = imce_wysiwyg
+dependencies[] = wysiwyg
+features[features_api][] = api:2
+features[wysiwyg][] = full_html
+features_exclude[dependencies][pathologic] = pathologic
+features_exclude[filter][full_html] = full_html

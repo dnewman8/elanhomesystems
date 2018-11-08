@@ -1,0 +1,5 @@
+name = CoreBrands Helper
+description = Various functionality that doesn't fit into other modules.
+package = CoreBrands
+core = 7.x
+version = 7.x-1.0

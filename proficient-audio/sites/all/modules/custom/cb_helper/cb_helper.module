@@ -1,0 +1,98 @@
+<?php
+
+/**
+ * Implements hook_form_alter().
+ */
+function cb_helper_form_search_block_form_alter(&$form, &$form_state) {
+    // Add the proper search icon.
+    $form['actions']['submit']['#value'] = "p";
+}
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function cb_helper_entity_info_alter(&$entity_info) {
+    $entity_info['node']['view modes']['gallery'] = array(
+        'label' => t('Gallery'),
+        'custom settings' => false,
+    );
+}
+
+/**
+ * Implements hook_wysiwyg_editor_settings_alter().
+ */
+function cb_helper_wysiwyg_editor_settings_alter(&$settings, $context) {
+    if ($context['editor']['name'] == 'ckeditor') {
+        $settings['startupOutlineBlocks'] = TRUE;
+    }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function cb_helper_permission() {
+  return array(
+    'administer corebrands settings' => array(
+      'title' => t('Administer Core Brands settings'),
+      'description' => t('Manage site-specific settings.'),
+      'restrict access' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function cb_helper_menu() {
+  $items = array();
+  $items['admin/config/cb/settings'] = array(
+    'title' => 'Core Brands Configuration',
+    'description' => 'Manage site-specific settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cb_helper_configuration'),
+    'access arguments' => array('administer corebrands settings'),
+    'file' => 'cb_helper.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Import redirect from CSV file.
+ */
+function cb_helper_import_redirect() {
+    $file = drupal_realpath('public://import/gefen_redirects.csv');
+
+    $count = -1;
+    $count_saved = 0;
+
+    if (($handle = fopen($file, "r")) !== FALSE) {
+        while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+            if ($count > 0) {
+                $source = ltrim($data[0],'/');
+                $destination = ltrim($data[1], '/');
+
+                $current_langcode = $GLOBALS['language']->language;
+                $current_query = drupal_get_query_parameters();
+
+                if (!redirect_load_by_source($source, $current_langcode, $current_query)) {
+                    $redirect = new stdClass();
+                    redirect_object_prepare($redirect);
+                    $redirect->source = $source;
+                    $redirect->redirect = $destination;
+                    $count_saved++;
+
+                    redirect_save($redirect);
+                }
+                else {
+                    drupal_set_message(t('!source already exists', ['!source' => '<strong>' . $source . '</strong>']), 'warning');
+                }
+            }
+
+            $count++;
+        }
+        fclose($handle);
+    }
+
+    dpm("Imported $count_saved out of $count redirects");
+}
